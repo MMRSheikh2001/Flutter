@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:homeflutterproject/main.dart';
 
 class CounterApp extends StatefulWidget {
   const CounterApp({super.key});
@@ -23,7 +22,8 @@ class _CounterAppState extends State<CounterApp> {
           "$_count",
           style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
         ),
-      ),
+      )
+      ,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: () => {

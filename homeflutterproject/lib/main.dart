@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:homeflutterproject/page/container_prac.dart';
 import 'package:homeflutterproject/page/counter.dart';
+import 'package:homeflutterproject/page/scaffold_prac.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: CounterApp(),
+      home: ScaffoldPrac(),
     );
   }
 }
