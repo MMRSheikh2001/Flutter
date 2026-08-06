@@ -13,6 +13,19 @@ class AppBarPrac extends StatelessWidget {
           "This is Appbar Practice",
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => {},
+            icon: Icon(Icons.comment),
+            tooltip: "Comment Icon",
+          ),
+          IconButton(
+            tooltip: "Settings Icon",
+            onPressed: () => {},
+            icon: Icon(Icons.settings),
+          ),
+        ],
+        leading: IconButton(onPressed: () => {}, icon: Icon(Icons.menu)),
       ),
       body: Center(
         child: Text(
