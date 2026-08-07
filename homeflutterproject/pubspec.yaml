@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   date_field: ^6.0.0
   dob_input_field: ^2.0.0
+  radio_group_v2: ^3.3.1
+  google_fonts: ^8.2.1
 
 dev_dependencies:
   flutter_test:
