@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 
 class BigContainerPrac extends StatelessWidget {
@@ -8,6 +10,9 @@ class BigContainerPrac extends StatelessWidget {
     return  Scaffold(
       body: Center(
         child: Container(
+
+          height: double.infinity,
+          width: 200,
           color: Colors.red,
 
         ),
