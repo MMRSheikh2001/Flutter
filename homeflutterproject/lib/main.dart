@@ -7,6 +7,7 @@ import 'package:homeflutterproject/page/registration_prac.dart';
 import 'package:homeflutterproject/page/rich_text_prac.dart';
 import 'package:homeflutterproject/page/scaffold_prac.dart';
 import 'package:homeflutterproject/page/tab_bar_implementation.dart';
+import 'package:homeflutterproject/prac/container_praca.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: RegistrationPrac(),
+      home: BigContainerPrac(),
     );
   }
 }

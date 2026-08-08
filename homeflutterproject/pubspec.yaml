@@ -39,6 +39,9 @@ dependencies:
   dob_input_field: ^2.0.0
   radio_group_v2: ^3.3.1
   google_fonts: ^8.2.1
+  dio: ^5.11.0
+  image_picker: ^1.2.3
+  image_picker_web: ^4.0.0
 
 dev_dependencies:
   flutter_test:
