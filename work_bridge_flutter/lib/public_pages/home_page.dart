@@ -6,7 +6,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      body: Center(child: Container(color: Colors.blue, height: 30, width: 30)),
     );
   }
 }
