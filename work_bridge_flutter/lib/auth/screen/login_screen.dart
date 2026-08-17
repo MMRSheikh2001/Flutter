@@ -81,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             color: Colors.white, size: 44),
                         SizedBox(height: 8),
                         Text(
-                          'Courier Management',
+                          'WorkBridge',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,

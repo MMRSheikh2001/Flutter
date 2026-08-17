@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
 
 void main() {
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'WorkBridge',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const HomePage(),
+      home: LoginScreen(),
     );
   }
 }
