@@ -42,6 +42,8 @@ dependencies:
   dio: ^5.11.0
   image_picker: ^1.2.3
   image_picker_web: ^4.0.0
+  http: ^1.6.0
+
 
 dev_dependencies:
   flutter_test:
