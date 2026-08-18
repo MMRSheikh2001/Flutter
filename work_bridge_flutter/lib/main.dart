@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
+import 'package:work_bridge_flutter/router/app_router.dart';
 import 'package:work_bridge_flutter/themes/app_theme.dart';
 
 void main() {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'WorkBridge',
       theme: AppTheme.light_,
-      home: LoginScreen(),
+      initialRoute: AppRouter.login,
     );
   }
 }
