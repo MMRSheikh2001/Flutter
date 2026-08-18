@@ -36,14 +36,7 @@ class AuthRepository{
     return res.data.toString();
   }
 
-  Future<String> resetPassword(ResetPasswordRequest dto) async {
-    final res = await _dio.post(
-      ApiConstants.resetPassword,
-      data: dto.toJson(),
-      options: Options(responseType: ResponseType.plain),
-    );
-    return res.data.toString();
-  }
+
 
   Future<String> verifyEmail(String token) async {
     final res = await _dio.get(
