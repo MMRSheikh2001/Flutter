@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
+import 'package:work_bridge_flutter/themes/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'WorkBridge',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
+      theme: AppTheme.light_,
       home: LoginScreen(),
     );
   }

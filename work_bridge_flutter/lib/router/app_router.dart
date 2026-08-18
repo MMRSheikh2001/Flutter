@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
+import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
 
 class AppRouter {
@@ -14,7 +15,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const HomePage());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
+
     // Add cases for /register and /forgot-password here
+      case register:
+        return MaterialPageRoute(builder: (_) => const RegisterScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
