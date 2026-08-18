@@ -1,20 +1,36 @@
+import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-
   ApiConstants._();
 
-  /// Base API URL — same host Angular's `environment.apiUrl` pointed to.
+  static String get host {
+    if (kIsWeb) {
+      // Flutter Web
+      return 'localhost';
+    }
 
-  static const String baseUrl = 'http://localhost:8090/api/';
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        // Android Emulator
+        return '10.0.2.2';
 
-  /// Base URL for served images (customer/agent/rider profile photos etc.)
-  /// Mirrors Angular's `environment.imgUrl`.
-  static const String imgUrl = 'http://localhost:8090/images/';
+      case TargetPlatform.iOS:
+        // iOS Simulator
+        return 'localhost';
 
-// ── Auth ───────────────────────────────────────────────
+      default:
+        // Windows / macOS / Linux
+        return 'localhost';
+    }
+  }
+
+  static String get baseUrl => 'http://$host:8090/api/';
+
+  static String get fileUrl => 'http://$host:8090/files/';
+
+  // ── Auth ───────────────────────────────────────────────
   static const String login = 'auth/login';
   static const String forgotPassword = 'auth/forgot-password';
   static const String resetPassword = 'auth/reset-password';
   static const String verifyEmail = 'auth/verifyemail';
-
 }
