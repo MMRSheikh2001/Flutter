@@ -25,7 +25,7 @@ class UserResponseDTO {
     this.updatedAt,
   });
 
-  /// Factory constructor to create [UserResponseDTO] from a JSON map.
+
   factory UserResponseDTO.fromJson(Map<String, dynamic> json) {
     return UserResponseDTO(
       id: (json['id'] as num?)?.toInt(),
@@ -44,7 +44,7 @@ class UserResponseDTO {
     );
   }
 
-  /// Converts this [UserResponseDTO] instance into a JSON-compatible map.
+
   Map<String, dynamic> toJson() {
     return {
       if (id != null) 'id': id,
@@ -59,7 +59,7 @@ class UserResponseDTO {
     };
   }
 
-  /// Helper method to create a modified copy of this object.
+
   UserResponseDTO copyWith({
     int? id,
     String? email,

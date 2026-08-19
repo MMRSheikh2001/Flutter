@@ -21,28 +21,28 @@ class LoginResponse {
     this.image,
   });
 
-  /// Factory constructor to create a [LoginResponse] instance from a JSON map.
+
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       token: json['token'] as String?,
       tokenType: json['tokenType'] as String? ?? 'Bearer',
       userId: (json['userId'] as num?)?.toInt(),
       email: json['email'] as String?,
-      role: json['role'] as UserRole?,
+      role: UserRole.fromJson(json['role'] as String?),
       profileId: (json['profileId'] as num?)?.toInt(),
       displayName: json['displayName'] as String?,
       image: json['image'] as String?,
     );
   }
 
-  /// Converts this [LoginResponse] instance into a JSON-compatible map.
+
   Map<String, dynamic> toJson() {
     return {
       if (token != null) 'token': token,
       'tokenType': tokenType,
       if (userId != null) 'userId': userId,
       if (email != null) 'email': email,
-      if (role != null) 'role': role,
+      if (role != null) 'role': role!.toJson(),
       if (profileId != null) 'profileId': profileId,
       if (displayName != null) 'displayName': displayName,
       if (image != null) 'image': image,
