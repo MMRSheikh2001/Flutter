@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_bridge_flutter/auth/screen/auth_gate.dart';
 import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
@@ -13,12 +14,12 @@ class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case root:
-      // This is where your RoleRedirectScreen or Home would go
-        return MaterialPageRoute(builder: (_) => const HomePage());
+        // This is where your RoleRedirectScreen or Home would go
+        return MaterialPageRoute(builder: (_) => const AuthGate());
       case login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
 
-    // Add cases for /register and /forgot-password here
+      // Add cases for /register and /forgot-password here
       case register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case forgotPassword:
