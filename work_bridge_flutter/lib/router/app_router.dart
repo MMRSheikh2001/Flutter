@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
@@ -7,6 +8,7 @@ class AppRouter {
   static const String root = '/';
   static const String login = '/login';
   static const String register = '/register';
+  static const String forgotPassword = '/forgot-password';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -19,6 +21,8 @@ class AppRouter {
     // Add cases for /register and /forgot-password here
       case register:
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
+      case forgotPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

@@ -33,4 +33,6 @@ class ApiConstants {
   static const String forgotPassword = 'auth/forgot-password';
   static const String resetPassword = 'auth/reset-password';
   static const String verifyEmail = 'auth/verifyemail';
+  static const String register='users/register';
+
 }
