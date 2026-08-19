@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:work_bridge_flutter/auth/request/user_request.dart';
 import 'package:work_bridge_flutter/auth/response/login_response.dart';
 
 class StorageKeys {
@@ -37,7 +38,7 @@ class StorageService {
     }
   }
 
-  Future<String?> getRole() async => (await getUser())?.role;
+  Future<UserRole?> getRole() async => (await getUser())?.role;
 
   Future<bool> isLoggedIn() async => (await getToken()) != null;
 

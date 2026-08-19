@@ -91,6 +91,19 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         icon: Icons.send,
                         onPressed: _submit,
                       ),
+
+                      const SizedBox(height: 20),
+                      // Login
+                      TextButton(
+                        onPressed: _loading
+                            ? null
+                            : () {
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed('/login');
+                              },
+                        child: const Text('Go to Login'),
+                      ),
                     ],
                   ),
                 ),

@@ -22,6 +22,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   bool _showPassword = false;
   bool _showConfirmPassword = false;
+
+  // Job Seeker is selected by default.
+  UserRole _selectedRole = UserRole.USER;
+
   bool _loading = false;
 
   String? _errorMessage;
@@ -52,19 +56,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         fullName: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
-        role: UserRole.USER,
+        role: _selectedRole,
       );
 
-      final message = await ref
-          .read(authRepositoryProvider)
-          .register(request);
+      final response = await ref.read(authRepositoryProvider).register(request);
 
       if (!mounted) return;
 
+      _nameCtrl.clear();
+      _emailCtrl.clear();
+      _passwordCtrl.clear();
+      _confirmPasswordCtrl.clear();
+
       setState(() {
-        _successMessage = (message !=null
-            ? message
-            : 'Registration successful. Please verify your email.') as String?;
+        _successMessage =
+            'Account created for ${response.email ?? _emailCtrl.text.trim()}. '
+            'Please check your email to verify before signing in.';
       });
     } catch (e) {
       if (!mounted) return;
@@ -118,10 +125,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         SizedBox(height: 2),
                         Text(
                           'Create your account',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                       ],
                     ),
@@ -135,27 +139,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       child: Column(
                         children: [
                           if (_errorMessage != null)
-                            ErrorBanner(
-                              message: _errorMessage!,
-                            ),
+                            ErrorBanner(message: _errorMessage!),
 
                           if (_successMessage != null)
-                            SuccessBanner(
-                              message: _successMessage!,
-                            ),
+                            SuccessBanner(message: _successMessage!),
 
+                          // Full Name
                           TextFormField(
                             controller: _nameCtrl,
                             textCapitalization: TextCapitalization.words,
                             decoration: const InputDecoration(
                               labelText: 'Full Name',
-                              prefixIcon: Icon(
-                                Icons.person_outline,
-                              ),
+                              prefixIcon: Icon(Icons.person_outline),
                             ),
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Full name is required.';
                               }
 
@@ -165,19 +163,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                           const SizedBox(height: 16),
 
+                          // Email
                           TextFormField(
                             controller: _emailCtrl,
                             keyboardType: TextInputType.emailAddress,
                             decoration: const InputDecoration(
                               labelText: 'Email',
-                              prefixIcon: Icon(
-                                Icons.email_outlined,
-                              ),
+                              prefixIcon: Icon(Icons.email_outlined),
                               hintText: 'you@example.com',
                             ),
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Email is required.';
                               }
 
@@ -191,14 +187,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                           const SizedBox(height: 16),
 
+                          // Password
                           TextFormField(
                             controller: _passwordCtrl,
                             obscureText: !_showPassword,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                              ),
+                              prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _showPassword
@@ -227,14 +222,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                           const SizedBox(height: 16),
 
+                          // Confirm Password
                           TextFormField(
                             controller: _confirmPasswordCtrl,
                             obscureText: !_showConfirmPassword,
                             decoration: InputDecoration(
                               labelText: 'Confirm Password',
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                              ),
+                              prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _showConfirmPassword
@@ -244,7 +238,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 onPressed: () {
                                   setState(() {
                                     _showConfirmPassword =
-                                    !_showConfirmPassword;
+                                        !_showConfirmPassword;
                                   });
                                 },
                               ),
@@ -263,8 +257,60 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             onFieldSubmitted: (_) => _register(),
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 20),
 
+                          // Account Type
+                          const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Account Type',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          RadioListTile<UserRole>(
+                            contentPadding: EdgeInsets.zero,
+                            value: UserRole.USER,
+                            groupValue: _selectedRole,
+                            title: const Text('Job Seeker'),
+                            subtitle: const Text(
+                              'Find jobs and build your career',
+                            ),
+                            onChanged: _loading
+                                ? null
+                                : (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _selectedRole = value;
+                                      });
+                                    }
+                                  },
+                          ),
+
+                          RadioListTile<UserRole>(
+                            contentPadding: EdgeInsets.zero,
+                            value: UserRole.COMPANY,
+                            groupValue: _selectedRole,
+                            title: const Text('Company'),
+                            subtitle: const Text(
+                              'Hire talent and manage recruitment',
+                            ),
+                            onChanged: _loading
+                                ? null
+                                : (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _selectedRole = value;
+                                      });
+                                    }
+                                  },
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Register Button
                           LoadingButton(
                             label: _loading
                                 ? 'Creating Account...'
@@ -276,14 +322,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                           const SizedBox(height: 12),
 
+                          // Login
                           TextButton(
                             onPressed: _loading
                                 ? null
                                 : () {
-                              Navigator.of(context).pushReplacementNamed(
-                                '/login',
-                              );
-                            },
+                                    Navigator.of(
+                                      context,
+                                    ).pushReplacementNamed('/login');
+                                  },
                             child: const Text(
                               'Already have an account? Sign In',
                             ),

@@ -1,9 +1,11 @@
+import 'package:work_bridge_flutter/auth/request/user_request.dart';
+
 class LoginResponse {
   final String? token;
   final String tokenType;
   final int? userId;
   final String? email;
-  final String? role;
+  final UserRole? role;
   final int? profileId;
   final String? displayName;
   final String? image;
@@ -26,7 +28,7 @@ class LoginResponse {
       tokenType: json['tokenType'] as String? ?? 'Bearer',
       userId: (json['userId'] as num?)?.toInt(),
       email: json['email'] as String?,
-      role: json['role'] as String?,
+      role: json['role'] as UserRole?,
       profileId: (json['profileId'] as num?)?.toInt(),
       displayName: json['displayName'] as String?,
       image: json['image'] as String?,
@@ -47,26 +49,4 @@ class LoginResponse {
     };
   }
 
-  /// Helper method to create a modified copy of this object.
-  LoginResponse copyWith({
-    String? token,
-    String? tokenType,
-    int? userId,
-    String? email,
-    String? role,
-    int? profileId,
-    String? displayName,
-    String? image,
-  }) {
-    return LoginResponse(
-      token: token ?? this.token,
-      tokenType: tokenType ?? this.tokenType,
-      userId: userId ?? this.userId,
-      email: email ?? this.email,
-      role: role ?? this.role,
-      profileId: profileId ?? this.profileId,
-      displayName: displayName ?? this.displayName,
-      image: image ?? this.image,
-    );
-  }
 }
