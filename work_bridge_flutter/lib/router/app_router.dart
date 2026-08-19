@@ -11,6 +11,22 @@ class AppRouter {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
 
+  static const String gigs='/gigs';
+  static const String jobs='/jobs';
+
+  static const String applications='/applications';
+  static const String orders='/orders';
+
+  static const String notifications='/notifications';
+  static const String wallet='/wallet';
+  static const String chat='/chat';
+
+  static const String profile='/profile';
+
+
+
+
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case root:

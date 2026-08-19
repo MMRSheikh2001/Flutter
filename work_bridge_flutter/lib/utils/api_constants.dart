@@ -35,4 +35,8 @@ class ApiConstants {
   static const String verifyEmail = 'auth/verifyemail';
   static const String register='users/register';
 
+  // Dashboard
+  static const String userDashboard ='dashboards/user';
+
+
 }
