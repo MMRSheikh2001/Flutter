@@ -1,0 +1,17 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:work_bridge_flutter/auth/providers.dart';
+import 'package:work_bridge_flutter/chat/data/notification_repository.dart';
+import 'package:work_bridge_flutter/job/data/job_repository.dart';
+import 'package:work_bridge_flutter/masterdata/data/master_data_repository.dart';
+
+final jobRepositoryProvider = Provider<JobRepository>((ref) {
+  return JobRepository(ref.watch(apiClientProvider));
+});
+
+final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
+  return NotificationRepository(ref.watch(apiClientProvider));
+});
+
+final masterDataRepositoryProvider = Provider<MasterDataRepository>((ref) {
+  return MasterDataRepository(ref.watch(apiClientProvider));
+});
