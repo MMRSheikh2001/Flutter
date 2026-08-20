@@ -47,5 +47,20 @@ class ApiConstants {
   // Dashboard
   static const String userDashboard ='dashboards/user';
 
+  //jobs
+
+static const String searchJobs='jobs/search';
+static const String getJobById='jobs/';
+static const String aiJobMatch='ai/interview/';// "api/ai/interview/{jobId}/match/{userProfileId}"
+
+//job application
+
+
+
+
+
+
+
+
 
 }
