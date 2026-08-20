@@ -25,3 +25,7 @@ final cvRepositoryProvider = Provider<CvRepository>((ref) {
 final companyProfileRepositoryProvider = Provider<CompanyProfileRepository>((ref) {
   return CompanyProfileRepository(ref.watch(apiClientProvider));
 });
+
+final countriesProvider = Provider<MasterDataRepository>((ref) {
+  return MasterDataRepository(ref.watch(apiClientProvider));
+});
