@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'WorkBridge',
       theme: AppTheme.light_,
-      initialRoute: AppRouter.login,
+      initialRoute: AppRouter.root,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }

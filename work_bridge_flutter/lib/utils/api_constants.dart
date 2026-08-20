@@ -26,7 +26,16 @@ class ApiConstants {
 
   static String get baseUrl => 'http://$host:8090/api/';
 
-  static String get fileUrl => 'http://$host:8090/files/';
+  static String get fileUrl => 'http://$host:8090/api/files/';
+
+  //Files
+
+  static String get userProfileImageUrl =>
+      '${fileUrl}userprofiles/';
+
+
+  static String get companyProfileImageUrl =>
+      '${fileUrl}companyprofiles/';
 
   // ── Auth ───────────────────────────────────────────────
   static const String login = 'auth/login';
