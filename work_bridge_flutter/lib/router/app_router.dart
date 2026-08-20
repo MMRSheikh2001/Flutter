@@ -3,7 +3,14 @@ import 'package:work_bridge_flutter/auth/screen/auth_gate.dart';
 import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
+import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
+import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
+import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
+import 'package:work_bridge_flutter/job/screen/job_applications_list_screen.dart';
+import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
 import 'package:work_bridge_flutter/public_pages/home_page.dart';
+import 'package:work_bridge_flutter/public_pages/notifications_list_screen.dart';
+import 'package:work_bridge_flutter/wallet/screen/wallet_screen.dart';
 
 class AppRouter {
   static const String root = '/';
@@ -40,6 +47,33 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case forgotPassword:
         return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+
+      // navigation from home page
+
+      case gigs:
+        return MaterialPageRoute(builder: (_) => const GigsSearchScreen());
+
+      case jobs:
+        return MaterialPageRoute(builder: (_) => const JobsSearchScreen());
+
+      case applications:
+        return MaterialPageRoute(builder: (_) => const JobApplicationsListScreen());
+
+      case orders:
+        return MaterialPageRoute(builder: (_) => const GigOrdersListScreen());
+
+      case notifications:
+        return MaterialPageRoute(builder: (_) => const NotificationsListScreen());
+
+      case wallet:
+        return MaterialPageRoute(builder: (_) => const WalletScreen());
+
+      case chat:
+        return MaterialPageRoute(builder: (_) => const ChatListScreen());
+
+      case profile:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
