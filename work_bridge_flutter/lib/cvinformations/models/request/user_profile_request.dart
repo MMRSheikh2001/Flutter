@@ -1,7 +1,6 @@
 import 'package:work_bridge_flutter/enums/gender_type.dart';
 import 'package:work_bridge_flutter/enums/job_type.dart';
 import 'package:work_bridge_flutter/enums/work_place_type.dart';
-import 'package:work_bridge_flutter/job/entity/response/job_response.dart';
 
 class UserProfileRequestDTO {
   final int? userId;
