@@ -607,7 +607,7 @@ class _StatisticsGrid extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.7,
+        childAspectRatio: 1.5,
       ),
       itemBuilder: (context, index) {
         return _StatisticCard(
@@ -641,14 +641,14 @@ class _StatisticCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             CircleAvatar(
-              radius: 23,
+              radius: 20,
               child: Icon(
                 item.icon,
-                size: 23,
+                size: 20,
               ),
             ),
 

@@ -8,8 +8,8 @@ import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
 import 'package:work_bridge_flutter/job/screen/job_applications_list_screen.dart';
 import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
-import 'package:work_bridge_flutter/public_pages/home_page.dart';
 import 'package:work_bridge_flutter/public_pages/notifications_list_screen.dart';
+import 'package:work_bridge_flutter/public_pages/profile_gate.dart';
 import 'package:work_bridge_flutter/wallet/screen/wallet_screen.dart';
 
 class AppRouter {
@@ -72,7 +72,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ChatListScreen());
 
       case profile:
-        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
+        return MaterialPageRoute(builder: (_) => const ProfileGate());
 
       default:
         return MaterialPageRoute(
