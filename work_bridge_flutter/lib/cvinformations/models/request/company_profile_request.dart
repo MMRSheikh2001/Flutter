@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class CompanyProfileRequestDTO {
   final int? userId;
   final String? name;
@@ -102,4 +104,6 @@ class CompanyProfileRequestDTO {
       locationPoliceStationId ?? this.locationPoliceStationId,
     );
   }
+
+  String toJsonString() => jsonEncode(toJson());
 }
