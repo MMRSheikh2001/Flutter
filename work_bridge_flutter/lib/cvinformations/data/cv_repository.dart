@@ -1,6 +1,9 @@
 
 
 
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:work_bridge_flutter/cvinformations/models/request/education_request.dart';
 import 'package:work_bridge_flutter/cvinformations/models/request/experience_request.dart';
@@ -40,16 +43,36 @@ class CvRepository {
 
   Future<UserProfileResponseDTO> saveUserProfile(
       UserProfileRequestDTO request,
+      File? imageFile,
       ) async {
-    final formData = FormData.fromMap({
-      'userprofile': MultipartFile.fromString(
-        request.toJsonString(),
-        contentType: DioMediaType(
-          'application',
-          'json',
+    final formData = FormData();
+
+    // User profile JSON
+    formData.files.add(
+      MapEntry(
+        'userprofile',
+        MultipartFile.fromString(
+          request.toJsonString(),
+          contentType: DioMediaType(
+            'application',
+            'json',
+          ),
         ),
       ),
-    });
+    );
+
+    // Profile image - optional
+    if (imageFile != null) {
+      formData.files.add(
+        MapEntry(
+          'image',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: imageFile.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.post(
       ApiConstants.userProfiles,
@@ -82,19 +105,41 @@ class CvRepository {
   }
 
 
+
+
   Future<UserProfileResponseDTO> updateUserProfile(
       int id,
       UserProfileRequestDTO request,
+      File? imageFile,
       ) async {
-    final formData = FormData.fromMap({
-      'userprofile': MultipartFile.fromString(
-        request.toJsonString(),
-        contentType: DioMediaType(
-          'application',
-          'json',
+    final formData = FormData();
+
+    // User profile JSON
+    formData.files.add(
+      MapEntry(
+        'userprofile',
+        MultipartFile.fromString(
+          request.toJsonString(),
+          contentType: DioMediaType(
+            'application',
+            'json',
+          ),
         ),
       ),
-    });
+    );
+
+    // Profile image - optional
+    if (imageFile != null) {
+      formData.files.add(
+        MapEntry(
+          'image',
+          await MultipartFile.fromFile(
+            imageFile.path,
+            filename: imageFile.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.put(
       ApiConstants.userProfileById(id),
@@ -371,18 +416,39 @@ class CvRepository {
   // Portfolio
   // =====================================================
 
+
   Future<PortfolioResponseDTO> savePortfolio(
       PortfolioRequestDTO request,
+      File? file,
       ) async {
-    final formData = FormData.fromMap({
-      'portfolio': MultipartFile.fromString(
-        request.toJsonString(),
-        contentType: DioMediaType(
-          'application',
-          'json',
+    final formData = FormData();
+
+    // Portfolio JSON
+    formData.files.add(
+      MapEntry(
+        'portfolio',
+        MultipartFile.fromString(
+          request.toJsonString(),
+          contentType: DioMediaType(
+            'application',
+            'json',
+          ),
         ),
       ),
-    });
+    );
+
+    // Portfolio file - optional
+    if (file != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.post(
       ApiConstants.portfolios,
@@ -407,16 +473,36 @@ class CvRepository {
   Future<PortfolioResponseDTO> updatePortfolio(
       int id,
       PortfolioRequestDTO request,
+      File? file,
       ) async {
-    final formData = FormData.fromMap({
-      'portfolio': MultipartFile.fromString(
-        request.toJsonString(),
-        contentType: DioMediaType(
-          'application',
-          'json',
+    final formData = FormData();
+
+    // Portfolio JSON
+    formData.files.add(
+      MapEntry(
+        'portfolio',
+        MultipartFile.fromString(
+          request.toJsonString(),
+          contentType: DioMediaType(
+            'application',
+            'json',
+          ),
         ),
       ),
-    });
+    );
+
+    // Portfolio file - optional
+    if (file != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.put(
       ApiConstants.portfolioById(id),
@@ -425,7 +511,6 @@ class CvRepository {
 
     return PortfolioResponseDTO.fromJson(response.data);
   }
-
 
   Future<String> deletePortfolio(int id) async {
     final response = await _dio.delete(
@@ -556,8 +641,11 @@ class CvRepository {
   // Training
   // =====================================================
 
+
+
   Future<TrainingResponseDTO> saveTraining(
       TrainingRequestDTO request,
+      File? file,
       ) async {
     final formData = FormData.fromMap({
       'training': MultipartFile.fromString(
@@ -567,6 +655,11 @@ class CvRepository {
           'json',
         ),
       ),
+
+      if (file != null)
+        'file': await MultipartFile.fromFile(
+          file.path,
+        ),
     });
 
     final response = await _dio.post(
@@ -592,6 +685,7 @@ class CvRepository {
   Future<TrainingResponseDTO> updateTraining(
       int id,
       TrainingRequestDTO request,
+      File? file,
       ) async {
     final formData = FormData.fromMap({
       'training': MultipartFile.fromString(
@@ -601,6 +695,11 @@ class CvRepository {
           'json',
         ),
       ),
+
+      if (file != null)
+        'file': await MultipartFile.fromFile(
+          file.path,
+        ),
     });
 
     final response = await _dio.put(
@@ -969,49 +1068,46 @@ class CvRepository {
   }
 
 
-  Future<List<int>> getResumePdf(
+  Future<Uint8List> getResumePdf(
       int userProfileId,
       ) async {
-    final response = await _dio.get(
+    final response = await _dio.get<List<int>>(
       ApiConstants.resumePdf(userProfileId),
       options: Options(
         responseType: ResponseType.bytes,
       ),
     );
 
-    return List<int>.from(response.data);
+    return Uint8List.fromList(response.data ?? []);
   }
 
 
   // =====================================================
   // Uploaded Resume File
-  // =====================================================
 
-  Future<ResumeFileResponseDTO> uploadResume({
-    required int userProfileId,
-    required String filePath,
-  }) async {
-    final fileName = filePath.split('/').last;
 
-    final file = await MultipartFile.fromFile(
-      filePath,
-      filename: fileName,
-    );
-
+  Future<ResumeFileResponseDTO> uploadResume(
+      int userProfileId,
+      File file,
+      ) async {
     final formData = FormData.fromMap({
-      'cv': file,
+      'userProfileId': userProfileId,
+      'cv': await MultipartFile.fromFile(
+        file.path,
+        filename: file.path.split('/').last,
+      ),
     });
 
     final response = await _dio.post(
       ApiConstants.uploadedResume,
-      queryParameters: {
-        'userProfileId': userProfileId,
-      },
       data: formData,
     );
 
     return ResumeFileResponseDTO.fromJson(response.data);
   }
+
+
+
 
 
   Future<String> deleteResumeFile(int id) async {

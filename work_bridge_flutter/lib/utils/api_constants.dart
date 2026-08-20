@@ -73,6 +73,21 @@ class ApiConstants {
   static String getAiJobMatchUrl(int jobId, int userProfileId) =>
       'ai/interview/$jobId/match/$userProfileId';
 
+
+  // =====================================================
+  // Company Profile
+  // =====================================================
+
+  static const String companyProfiles = 'companies/';
+
+  static String companyProfileById(int id) => 'companies/$id';
+
+  static String companyProfileByUserId(int userId) => 'companies/user/$userId';
+
+  static String deletecompanyProfileImage(int id) => 'companies/$id/image';
+
+
+
   // =====================================================
   // User Profile
   // =====================================================
