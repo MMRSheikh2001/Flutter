@@ -19,24 +19,19 @@ class AppRouter {
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
 
-  static const String gigs='/gigs';
+  static const String gigs = '/gigs';
 
+  static const String jobs = '/jobs';
+  static const String jobDetails = '/job-details';
 
-  static const String jobs='/jobs';
-  static const String jobDetails='/job-details';
+  static const String applications = '/applications';
+  static const String orders = '/orders';
 
-  static const String applications='/applications';
-  static const String orders='/orders';
+  static const String notifications = '/notifications';
+  static const String wallet = '/wallet';
+  static const String chat = '/chat';
 
-  static const String notifications='/notifications';
-  static const String wallet='/wallet';
-  static const String chat='/chat';
-
-  static const String profile='/profile';
-
-
-
-
+  static const String profile = '/profile';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -59,17 +54,25 @@ class AppRouter {
 
       case jobs:
         return MaterialPageRoute(builder: (_) => const JobsSearchScreen());
+
       case jobDetails:
-        return MaterialPageRoute(builder: (_) => const JobDetailsScreen());
+        final jobId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => JobDetailsScreen(jobId: jobId),
+        );
 
       case applications:
-        return MaterialPageRoute(builder: (_) => const JobApplicationsListScreen());
+        return MaterialPageRoute(
+          builder: (_) => const JobApplicationsListScreen(),
+        );
 
       case orders:
         return MaterialPageRoute(builder: (_) => const GigOrdersListScreen());
 
       case notifications:
-        return MaterialPageRoute(builder: (_) => const NotificationsListScreen());
+        return MaterialPageRoute(
+          builder: (_) => const NotificationsListScreen(),
+        );
 
       case wallet:
         return MaterialPageRoute(builder: (_) => const WalletScreen());
