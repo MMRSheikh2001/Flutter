@@ -61,17 +61,16 @@ class _JobsSearchScreenState extends ConsumerState<JobsSearchScreen> {
     final activeFilterCount = _countActiveFilters(activeFilter);
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Find Jobs'),
-          actions: [
-            if (_keywordCtrl.text.isNotEmpty || activeFilterCount > 0)
-              TextButton.icon(
-                onPressed: _reset,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Reset'),
-              ),
-          ],
-        ),
+      appBar: AppBar(
+        title: const Text('Find Jobs'),
+        actions: [
+          TextButton.icon(
+            onPressed: _reset,
+            icon: const Icon(Icons.refresh, size: 18),
+            label: const Text('Reset'),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
