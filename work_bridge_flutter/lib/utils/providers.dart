@@ -26,6 +26,6 @@ final companyProfileRepositoryProvider = Provider<CompanyProfileRepository>((ref
   return CompanyProfileRepository(ref.watch(apiClientProvider));
 });
 
-final countriesProvider = Provider<MasterDataRepository>((ref) {
-  return MasterDataRepository(ref.watch(apiClientProvider));
+final countriesProvider = FutureProvider((ref) {
+  return ref.watch(masterDataRepositoryProvider).getAllCountries();
 });
