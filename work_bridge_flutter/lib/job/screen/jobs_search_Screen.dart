@@ -66,8 +66,9 @@ class _JobsSearchScreenState extends ConsumerState<JobsSearchScreen> {
         actions: [
           TextButton.icon(
             onPressed: _reset,
-            icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Reset'),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
+            label: const Text('Reset', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
