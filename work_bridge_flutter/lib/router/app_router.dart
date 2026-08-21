@@ -6,6 +6,7 @@ import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
+import 'package:work_bridge_flutter/job/screen/ai_interview_screen.dart';
 import 'package:work_bridge_flutter/job/screen/job_applications_list_screen.dart';
 import 'package:work_bridge_flutter/job/screen/job_details.dart';
 import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
@@ -25,6 +26,8 @@ class AppRouter {
   static const String jobDetails = '/job-details';
 
   static const String applications = '/applications';
+  static const String aiInterview='ai-interview';
+
   static const String orders = '/orders';
 
   static const String notifications = '/notifications';
@@ -64,6 +67,12 @@ class AppRouter {
       case applications:
         return MaterialPageRoute(
           builder: (_) => const JobApplicationsListScreen(),
+        );
+
+      case aiInterview:
+        final applicationId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => AiInterviewScreen(applicationId: applicationId),
         );
 
       case orders:
