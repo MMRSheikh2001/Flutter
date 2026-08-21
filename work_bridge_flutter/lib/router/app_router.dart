@@ -7,6 +7,7 @@ import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
 import 'package:work_bridge_flutter/job/screen/job_applications_list_screen.dart';
+import 'package:work_bridge_flutter/job/screen/job_details.dart';
 import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
 import 'package:work_bridge_flutter/public_pages/notifications_list_screen.dart';
 import 'package:work_bridge_flutter/public_pages/profile_gate.dart';
@@ -19,7 +20,10 @@ class AppRouter {
   static const String forgotPassword = '/forgot-password';
 
   static const String gigs='/gigs';
+
+
   static const String jobs='/jobs';
+  static const String jobDetails='/job-details';
 
   static const String applications='/applications';
   static const String orders='/orders';
@@ -55,6 +59,8 @@ class AppRouter {
 
       case jobs:
         return MaterialPageRoute(builder: (_) => const JobsSearchScreen());
+      case jobDetails:
+        return MaterialPageRoute(builder: (_) => const JobDetailsScreen());
 
       case applications:
         return MaterialPageRoute(builder: (_) => const JobApplicationsListScreen());
