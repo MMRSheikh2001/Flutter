@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:work_bridge_flutter/masterdata/models/response/country_response.dart';
@@ -82,6 +81,15 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
   bool _loadingDistricts = false;
   bool _loadingPoliceStations = false;
 
+  // Request tokens guard against out-of-order async responses — e.g. if
+  // the user picks Country A then quickly Country B, and A's network
+  // response arrives after B's, we must not let A's (stale) divisions
+  // overwrite B's list. Each level only applies a response if it's still
+  // the most recent request for that level.
+  int _countryRequestId = 0;
+  int _divisionRequestId = 0;
+  int _districtRequestId = 0;
+
   void _emit() {
     widget.onChanged(
       LocationSelection(
@@ -98,6 +106,8 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
   }
 
   Future<void> _onCountryChanged(CountryResponseDTO? country) async {
+    final requestId = ++_countryRequestId;
+
     setState(() {
       _country = country;
       _division = null;
@@ -115,13 +125,19 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
       final list = await ref
           .read(masterDataRepositoryProvider)
           .getDivisionsByCountryId(country!.countryId!);
-      if (mounted) setState(() => _divisions = list);
+      if (mounted && requestId == _countryRequestId) {
+        setState(() => _divisions = list);
+      }
     } finally {
-      if (mounted) setState(() => _loadingDivisions = false);
+      if (mounted && requestId == _countryRequestId) {
+        setState(() => _loadingDivisions = false);
+      }
     }
   }
 
   Future<void> _onDivisionChanged(DivisionResponseDTO? division) async {
+    final requestId = ++_divisionRequestId;
+
     setState(() {
       _division = division;
       _district = null;
@@ -137,13 +153,19 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
       final list = await ref
           .read(masterDataRepositoryProvider)
           .getDistrictsByDivisionId(division!.divisionId!);
-      if (mounted) setState(() => _districts = list);
+      if (mounted && requestId == _divisionRequestId) {
+        setState(() => _districts = list);
+      }
     } finally {
-      if (mounted) setState(() => _loadingDistricts = false);
+      if (mounted && requestId == _divisionRequestId) {
+        setState(() => _loadingDistricts = false);
+      }
     }
   }
 
   Future<void> _onDistrictChanged(DistrictResponseDTO? district) async {
+    final requestId = ++_districtRequestId;
+
     setState(() {
       _district = district;
       _policeStation = null;
@@ -157,9 +179,13 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
       final list = await ref
           .read(masterDataRepositoryProvider)
           .getPoliceStationsByDistrictId(district!.districtId!);
-      if (mounted) setState(() => _policeStations = list);
+      if (mounted && requestId == _districtRequestId) {
+        setState(() => _policeStations = list);
+      }
     } finally {
-      if (mounted) setState(() => _loadingPoliceStations = false);
+      if (mounted && requestId == _districtRequestId) {
+        setState(() => _loadingPoliceStations = false);
+      }
     }
   }
 
@@ -260,13 +286,13 @@ class _Dropdown<T> extends StatelessWidget {
         prefixIcon: Icon(icon),
         suffixIcon: loading
             ? const Padding(
-          padding: EdgeInsets.all(12),
-          child: SizedBox(
-            height: 16,
-            width: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        )
+                padding: EdgeInsets.all(12),
+                child: SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
             : null,
       ),
       hint: Text('Select $label'),
