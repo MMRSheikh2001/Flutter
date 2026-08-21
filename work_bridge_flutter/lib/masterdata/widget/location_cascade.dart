@@ -51,6 +51,7 @@ class LocationCascade extends ConsumerStatefulWidget {
     this.districtLabel = 'District',
     this.policeStationLabel = 'Police Station',
     this.showPoliceStation = true,
+    this.initialSelection,
   });
 
   final ValueChanged<LocationSelection> onChanged;
@@ -62,6 +63,14 @@ class LocationCascade extends ConsumerStatefulWidget {
   /// Job search only needs down to District — set false to hide the
   /// Police Station level for that case.
   final bool showPoliceStation;
+
+  /// Pre-fill the cascade from a previously saved selection — e.g. when
+  /// editing an existing company/user address. Only the IDs are used;
+  /// the widget resolves the actual DTO objects itself by fetching each
+  /// level's list in order (there's no "give me the ancestor chain for
+  /// this leaf id" endpoint on the backend, so this has to walk down
+  /// from Country the same way manual selection does).
+  final LocationSelection? initialSelection;
 
   @override
   ConsumerState<LocationCascade> createState() => _LocationCascadeState();
@@ -85,10 +94,103 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
   // the user picks Country A then quickly Country B, and A's network
   // response arrives after B's, we must not let A's (stale) divisions
   // overwrite B's list. Each level only applies a response if it's still
-  // the most recent request for that level.
+  // the most recent request for that level. The initial pre-fill walk
+  // (below) also goes through these same counters so a manual selection
+  // made while pre-fill is still in flight correctly wins.
   int _countryRequestId = 0;
   int _divisionRequestId = 0;
   int _districtRequestId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialSelection;
+    if (initial != null && initial.countryId != null) {
+      // Defer to after the first frame so `ref` reads are safe and the
+      // countriesProvider (likely already resolved/cached) can be read
+      // via `.future` without racing the widget's own first build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _applyInitialSelection(initial);
+      });
+    }
+  }
+
+  T? _findById<T>(List<T> items, int? id, int? Function(T) idOf) {
+    if (id == null) return null;
+    for (final item in items) {
+      if (idOf(item) == id) return item;
+    }
+    return null;
+  }
+
+  Future<void> _applyInitialSelection(LocationSelection initial) async {
+    final countryRequestId = ++_countryRequestId;
+    final countries = await ref.read(countriesProvider.future);
+    if (!mounted || countryRequestId != _countryRequestId) return;
+
+    final country = _findById(countries, initial.countryId, (c) => c.countryId);
+    if (country == null) return;
+    setState(() => _country = country);
+
+    if (initial.divisionId == null || country.countryId == null) return;
+    final divisionRequestId = ++_divisionRequestId;
+    setState(() => _loadingDivisions = true);
+    final divisions = await ref
+        .read(masterDataRepositoryProvider)
+        .getDivisionsByCountryId(country.countryId!);
+    if (!mounted || countryRequestId != _countryRequestId) return;
+    setState(() {
+      _divisions = divisions;
+      _loadingDivisions = false;
+    });
+
+    final division =
+    _findById(divisions, initial.divisionId, (d) => d.divisionId);
+    if (division == null) return;
+    setState(() => _division = division);
+
+    if (initial.districtId == null || division.divisionId == null) return;
+    if (divisionRequestId != _divisionRequestId) return;
+    setState(() => _loadingDistricts = true);
+    final districts = await ref
+        .read(masterDataRepositoryProvider)
+        .getDistrictsByDivisionId(division.divisionId!);
+    if (!mounted || divisionRequestId != _divisionRequestId) return;
+    setState(() {
+      _districts = districts;
+      _loadingDistricts = false;
+    });
+
+    final district =
+    _findById(districts, initial.districtId, (d) => d.districtId);
+    if (district == null) return;
+    setState(() => _district = district);
+
+    if (!widget.showPoliceStation ||
+        initial.policeStationId == null ||
+        district.districtId == null) {
+      return;
+    }
+    final districtRequestId = ++_districtRequestId;
+    setState(() => _loadingPoliceStations = true);
+    final policeStations = await ref
+        .read(masterDataRepositoryProvider)
+        .getPoliceStationsByDistrictId(district.districtId!);
+    if (!mounted || districtRequestId != _districtRequestId) return;
+    setState(() {
+      _policeStations = policeStations;
+      _loadingPoliceStations = false;
+    });
+
+    final policeStation = _findById(
+      policeStations,
+      initial.policeStationId,
+          (p) => p.policeStationId,
+    );
+    if (policeStation != null) {
+      setState(() => _policeStation = policeStation);
+    }
+  }
 
   void _emit() {
     widget.onChanged(
@@ -286,13 +388,13 @@ class _Dropdown<T> extends StatelessWidget {
         prefixIcon: Icon(icon),
         suffixIcon: loading
             ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
-                  height: 16,
-                  width: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              )
+          padding: EdgeInsets.all(12),
+          child: SizedBox(
+            height: 16,
+            width: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        )
             : null,
       ),
       hint: Text('Select $label'),
