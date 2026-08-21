@@ -7,6 +7,7 @@ import 'package:work_bridge_flutter/cvinformations/models/request/company_profil
 import 'package:work_bridge_flutter/cvinformations/models/response/company_profile_response.dart';
 import 'package:work_bridge_flutter/cvinformations/providers/company_profile_provider.dart';
 import 'package:work_bridge_flutter/masterdata/widget/location_cascade.dart';
+import 'package:work_bridge_flutter/utils/api_constants.dart';
 import 'package:work_bridge_flutter/utils/providers.dart';
 
 class CompanyProfileScreen extends ConsumerStatefulWidget {
@@ -52,7 +53,9 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
     _tradeLicenseCtrl.text = profile.tradeLicenseNumber ?? '';
     _locationDetailsCtrl.text = profile.locationDetails ?? '';
     _postCodeCtrl.text = profile.locationPostCode ?? '';
-    _existingImageUrl = profile.image;
+    _existingImageUrl = (profile.image != null && profile.image!.isNotEmpty)
+        ? '${ApiConstants.companyProfileImageUrl}${profile.image}'
+        : null;
     _location = LocationSelection(
       countryId: profile.locationCountryId,
       countryName: profile.locationCountryName,
@@ -418,6 +421,7 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                   ),
                   const SizedBox(height: 10),
                   LocationCascade(
+                    initialSelection: _location,
                     onChanged: (loc) => setState(() => _location = loc),
                   ),
                   const SizedBox(height: 14),
