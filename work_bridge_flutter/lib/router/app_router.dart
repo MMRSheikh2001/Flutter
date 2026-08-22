@@ -15,6 +15,7 @@ import 'package:work_bridge_flutter/cvinformations/screens/resume_file_screen.da
 import 'package:work_bridge_flutter/cvinformations/screens/training_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_language_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_skill_screen.dart';
+import 'package:work_bridge_flutter/gig/screen/gig_details.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
 import 'package:work_bridge_flutter/job/screen/ai_interview_screen.dart';
@@ -32,6 +33,7 @@ class AppRouter {
   static const String forgotPassword = '/forgot-password';
 
   static const String gigs = '/gigs';
+  static const String gigDetails = '/gig-details';
 
   static const String jobs = '/jobs';
   static const String jobDetails = '/job-details';
@@ -78,6 +80,14 @@ class AppRouter {
 
       case gigs:
         return MaterialPageRoute(builder: (_) => const GigsSearchScreen());
+
+      case gigDetails:
+        final gigId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => GigDetails(gigId: gigId),
+        );
+
+
 
       case jobs:
         return MaterialPageRoute(builder: (_) => const JobsSearchScreen());

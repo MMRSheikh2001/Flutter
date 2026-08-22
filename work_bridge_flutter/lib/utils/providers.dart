@@ -7,6 +7,7 @@ import 'package:work_bridge_flutter/cvinformations/data/cv_repository.dart';
 import 'package:work_bridge_flutter/gig/data/gig_repository.dart';
 import 'package:work_bridge_flutter/job/data/job_repository.dart';
 import 'package:work_bridge_flutter/masterdata/data/master_data_repository.dart';
+import 'package:work_bridge_flutter/masterdata/models/response/category_response.dart';
 
 final jobRepositoryProvider = Provider<JobRepository>((ref) {
   return JobRepository(ref.watch(apiClientProvider));
@@ -24,7 +25,9 @@ final cvRepositoryProvider = Provider<CvRepository>((ref) {
   return CvRepository(ref.watch(apiClientProvider));
 });
 
-final companyProfileRepositoryProvider = Provider<CompanyProfileRepository>((ref) {
+final companyProfileRepositoryProvider = Provider<CompanyProfileRepository>((
+  ref,
+) {
   return CompanyProfileRepository(ref.watch(apiClientProvider));
 });
 
@@ -37,9 +40,10 @@ final navigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
   return GlobalKey<NavigatorState>();
 });
 
-
 final gigRepositoryProvider = Provider<GigRepository>((ref) {
-  return GigRepository(
-    ref.watch(apiClientProvider),
-  );
+  return GigRepository(ref.watch(apiClientProvider));
+});
+
+final gigCategoriesProvider = FutureProvider<List<CategoryResponseDTO>>((ref) {
+  return ref.watch(masterDataRepositoryProvider).getAllCategories();
 });

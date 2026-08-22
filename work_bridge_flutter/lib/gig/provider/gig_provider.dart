@@ -15,3 +15,8 @@ final gigSearchResultsProvider = FutureProvider<List<GigResponseDTO>>((ref) {
 
   return ref.watch(gigRepositoryProvider).searchGigs(filter);
 });
+
+final activeGigSearchFilterProvider =
+StateProvider<GigSearchRequestDTO>((ref) {
+  return const GigSearchRequestDTO(active: true);
+});
