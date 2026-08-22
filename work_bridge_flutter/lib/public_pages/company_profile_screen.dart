@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/cvinformations/models/request/company_profile_request.dart';
 import 'package:work_bridge_flutter/cvinformations/models/response/company_profile_response.dart';
 import 'package:work_bridge_flutter/cvinformations/providers/company_profile_provider.dart';
@@ -111,6 +112,8 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
     // The backend crashes (500) if locationPoliceStationId is null on
     // save, and there's no server-side default/skip for it, so the
     // address section is enforced as required here rather than optional.
+
+
     if (_location.policeStationId == null) {
       setState(() {
         _errorMessage =
@@ -125,8 +128,23 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
       _errorMessage = null;
     });
 
+
+    final storageService = ref.read(storageServiceProvider); // Or your locator/DI method
+    final user = await storageService.getUser();
+
+    if (user == null || user.userId == null) {
+// Handle unauthenticated state or missing ID
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User session expired. Please log in again.')),
+      );
+      return;
+    }
+
     try {
       final request = CompanyProfileRequestDTO(
+
+
+        userId: user.userId!,
         name: _nameCtrl.text.trim(),
         phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
         companyEmail: _emailCtrl.text.trim().isEmpty
@@ -160,9 +178,12 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
         locationId: _locationId,
       );
 
+
       final updated = await ref
           .read(companyProfileRepositoryProvider)
           .updateCompanyProfile(profileId, request, _pickedImage);
+
+
 
       // Capture what the backend actually persisted — most importantly
       // the Address id it just created (if this was the first save), so

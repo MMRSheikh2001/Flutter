@@ -7,10 +7,6 @@ import 'package:work_bridge_flutter/masterdata/models/response/policestation_res
 import 'package:work_bridge_flutter/utils/providers.dart';
 
 /// Selection reported back to the parent whenever any level changes.
-/// Every field is nullable/independent so the parent can use whichever
-/// level it needs — e.g. job search only cares about
-/// countryId/divisionId/districtId/policeStationId (JobSearchRequestDTO
-/// fields), while an address form wants the full leaf record.
 class LocationSelection {
   const LocationSelection({
     this.countryId,
@@ -37,11 +33,6 @@ class LocationSelection {
   static const empty = LocationSelection();
 }
 
-/// Reusable Country -> Division -> District -> Police Station cascade,
-/// backed by MasterDataRepository. Drop in two instances (e.g. present +
-/// permanent address on a profile form, or country/division/district as
-/// job-search filters) — each instance keeps independent selection state
-/// while sharing the cached countriesProvider list.
 class LocationCascade extends ConsumerStatefulWidget {
   const LocationCascade({
     super.key,
@@ -59,17 +50,7 @@ class LocationCascade extends ConsumerStatefulWidget {
   final String divisionLabel;
   final String districtLabel;
   final String policeStationLabel;
-
-  /// Job search only needs down to District — set false to hide the
-  /// Police Station level for that case.
   final bool showPoliceStation;
-
-  /// Pre-fill the cascade from a previously saved selection — e.g. when
-  /// editing an existing company/user address. Only the IDs are used;
-  /// the widget resolves the actual DTO objects itself by fetching each
-  /// level's list in order (there's no "give me the ancestor chain for
-  /// this leaf id" endpoint on the backend, so this has to walk down
-  /// from Country the same way manual selection does).
   final LocationSelection? initialSelection;
 
   @override
@@ -90,13 +71,6 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
   bool _loadingDistricts = false;
   bool _loadingPoliceStations = false;
 
-  // Request tokens guard against out-of-order async responses — e.g. if
-  // the user picks Country A then quickly Country B, and A's network
-  // response arrives after B's, we must not let A's (stale) divisions
-  // overwrite B's list. Each level only applies a response if it's still
-  // the most recent request for that level. The initial pre-fill walk
-  // (below) also goes through these same counters so a manual selection
-  // made while pre-fill is still in flight correctly wins.
   int _countryRequestId = 0;
   int _divisionRequestId = 0;
   int _districtRequestId = 0;
@@ -106,9 +80,6 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
     super.initState();
     final initial = widget.initialSelection;
     if (initial != null && initial.countryId != null) {
-      // Defer to after the first frame so `ref` reads are safe and the
-      // countriesProvider (likely already resolved/cached) can be read
-      // via `.future` without racing the widget's own first build.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _applyInitialSelection(initial);
       });
@@ -124,59 +95,58 @@ class _LocationCascadeState extends ConsumerState<LocationCascade> {
   }
 
   Future<void> _applyInitialSelection(LocationSelection initial) async {
-    final countryRequestId = ++_countryRequestId;
+    final currentToken = ++_countryRequestId;
+
+    // 1. Fetch Country
     final countries = await ref.read(countriesProvider.future);
-    if (!mounted || countryRequestId != _countryRequestId) return;
+    if (!mounted || currentToken != _countryRequestId) return;
 
     final country = _findById(countries, initial.countryId, (c) => c.countryId);
-    if (country == null) return;
+    if (country == null || country.countryId == null) return;
     setState(() => _country = country);
 
-    if (initial.divisionId == null || country.countryId == null) return;
-    final divisionRequestId = ++_divisionRequestId;
+    // 2. Fetch Divisions
+    if (initial.divisionId == null) return;
     setState(() => _loadingDivisions = true);
     final divisions = await ref
         .read(masterDataRepositoryProvider)
         .getDivisionsByCountryId(country.countryId!);
-    if (!mounted || countryRequestId != _countryRequestId) return;
+    if (!mounted || currentToken != _countryRequestId) return;
+
     setState(() {
       _divisions = divisions;
       _loadingDivisions = false;
     });
 
-    final division =
-    _findById(divisions, initial.divisionId, (d) => d.divisionId);
-    if (division == null) return;
+    final division = _findById(divisions, initial.divisionId, (d) => d.divisionId);
+    if (division == null || division.divisionId == null) return;
     setState(() => _division = division);
 
-    if (initial.districtId == null || division.divisionId == null) return;
-    if (divisionRequestId != _divisionRequestId) return;
+    // 3. Fetch Districts
+    if (initial.districtId == null) return;
     setState(() => _loadingDistricts = true);
     final districts = await ref
         .read(masterDataRepositoryProvider)
         .getDistrictsByDivisionId(division.divisionId!);
-    if (!mounted || divisionRequestId != _divisionRequestId) return;
+    if (!mounted || currentToken != _countryRequestId) return;
+
     setState(() {
       _districts = districts;
       _loadingDistricts = false;
     });
 
-    final district =
-    _findById(districts, initial.districtId, (d) => d.districtId);
-    if (district == null) return;
+    final district = _findById(districts, initial.districtId, (d) => d.districtId);
+    if (district == null || district.districtId == null) return;
     setState(() => _district = district);
 
-    if (!widget.showPoliceStation ||
-        initial.policeStationId == null ||
-        district.districtId == null) {
-      return;
-    }
-    final districtRequestId = ++_districtRequestId;
+    // 4. Fetch Police Stations
+    if (!widget.showPoliceStation || initial.policeStationId == null) return;
     setState(() => _loadingPoliceStations = true);
     final policeStations = await ref
         .read(masterDataRepositoryProvider)
         .getPoliceStationsByDistrictId(district.districtId!);
-    if (!mounted || districtRequestId != _districtRequestId) return;
+    if (!mounted || currentToken != _countryRequestId) return;
+
     setState(() {
       _policeStations = policeStations;
       _loadingPoliceStations = false;

@@ -29,6 +29,7 @@ class CompanyProfileRepository {
     return CompanyProfileResponseDTO.fromJson(response.data);
   }
 
+
   Future<CompanyProfileResponseDTO> updateCompanyProfile(
       int id,
       CompanyProfileRequestDTO request,
@@ -36,23 +37,27 @@ class CompanyProfileRepository {
       ) async {
     final formData = FormData();
 
+    // Fix: Specify empty/null filename so Spring treats it as a JSON payload part
     formData.files.add(
       MapEntry(
         'companyprofile',
         MultipartFile.fromString(
           request.toJsonString(),
           contentType: DioMediaType('application', 'json'),
+          filename: '', // Prevents Spring from mistaking this for a file upload
         ),
       ),
     );
 
+    // Add image if present
     if (imageFile != null) {
+      final fileName = imageFile.path.split('/').last;
       formData.files.add(
         MapEntry(
           'image',
           await MultipartFile.fromFile(
             imageFile.path,
-            filename: imageFile.path.split(Platform.pathSeparator).last,
+            filename: fileName,
           ),
         ),
       );
@@ -65,6 +70,8 @@ class CompanyProfileRepository {
 
     return CompanyProfileResponseDTO.fromJson(response.data);
   }
+
+
 
   Future<String> deleteCompanyProfileImage(int id) async {
     final response = await _dio.delete(

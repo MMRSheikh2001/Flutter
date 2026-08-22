@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/chat/data/notification_repository.dart';
@@ -28,4 +29,9 @@ final companyProfileRepositoryProvider = Provider<CompanyProfileRepository>((ref
 
 final countriesProvider = FutureProvider((ref) {
   return ref.watch(masterDataRepositoryProvider).getAllCountries();
+});
+
+// providers.dart or main.dart
+final navigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
+  return GlobalKey<NavigatorState>();
 });

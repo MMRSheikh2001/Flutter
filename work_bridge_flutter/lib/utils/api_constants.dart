@@ -381,4 +381,19 @@ class ApiConstants {
 
   static String policeStationsByDistrict(int id) =>
       'policestations/district/$id';
+
+
+// =====================================================
+// Gig
+// =====================================================
+
+  static const String searchGigs = 'gigs/search';
+
+  static const String getGigById = 'gigs/';
+  static String getGigUrl(int id) => '$getGigById$id';
+
+
+
+
+
 }
