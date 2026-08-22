@@ -4,6 +4,7 @@ import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/chat/data/notification_repository.dart';
 import 'package:work_bridge_flutter/cvinformations/data/company_profile_repository.dart';
 import 'package:work_bridge_flutter/cvinformations/data/cv_repository.dart';
+import 'package:work_bridge_flutter/gig/data/gig_repository.dart';
 import 'package:work_bridge_flutter/job/data/job_repository.dart';
 import 'package:work_bridge_flutter/masterdata/data/master_data_repository.dart';
 
@@ -34,4 +35,11 @@ final countriesProvider = FutureProvider((ref) {
 // providers.dart or main.dart
 final navigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
   return GlobalKey<NavigatorState>();
+});
+
+
+final gigRepositoryProvider = Provider<GigRepository>((ref) {
+  return GigRepository(
+    ref.watch(apiClientProvider),
+  );
 });

@@ -73,7 +73,6 @@ class ApiConstants {
   static String getAiJobMatchUrl(int jobId, int userProfileId) =>
       'ai/interview/$jobId/match/$userProfileId';
 
-
   // =====================================================
   // Company Profile
   // =====================================================
@@ -85,8 +84,6 @@ class ApiConstants {
   static String companyProfileByUserId(int userId) => 'companies/user/$userId';
 
   static String deletecompanyProfileImage(int id) => 'companies/$id/image';
-
-
 
   // =====================================================
   // User Profile
@@ -382,21 +379,63 @@ class ApiConstants {
   static String policeStationsByDistrict(int id) =>
       'policestations/district/$id';
 
-
-// =====================================================
-// Gig
-// =====================================================
+  // =====================================================
+  // Gig
+  // =====================================================
 
   static const String searchGigs = 'gigs/search';
 
   static const String getGigById = 'gigs/';
+
   static String getGigUrl(int id) => '$getGigById$id';
 
+  // =====================================================
+  // Gig Order
+  // =====================================================
 
-// =====================================================
-// Gig Order
+  static const String gigOrders = 'gig-orders/';
+
+  static String placeGigOrder(int gigId, int buyerId) =>
+      'gig-orders?gigId=$gigId&buyerId=$buyerId';
+
+  static String acceptGigQuote(int orderId) =>
+      'gig-orders/$orderId/accept-quote';
+
+  static String rejectGigQuote(int orderId) =>
+      'gig-orders/$orderId/reject-quote';
+
+  static String acceptGigDelivery(int orderId) =>
+      'gig-orders/$orderId/accept-delivery';
+
+  static String rejectGigDelivery(int orderId) =>
+      'gig-orders/$orderId/reject-delivery';
+
+  static String buyerCancelGigOrder(int orderId) =>
+      'gig-orders/$orderId/buyer-cancel';
+
+  static String buyerGigOrders(int buyerId) => 'gig-orders/buyer/$buyerId';
+
+  static String buyerGigOrdersByStatus(int buyerId, String status) =>
+      'gig-orders/buyer/$buyerId/status/$status';
+
+  static String buyerGigOrderCountByStatus(int buyerId, String status) =>
+      'gig-orders/buyer/$buyerId/status/$status/count';
+
+  static String buyerGigOrderCount(int buyerId) =>
+      'gig-orders/buyer/$buyerId/count';
+
+  static String gigOrderExists(int gigId, int buyerId) =>
+      'gig-orders/gig/$gigId/buyer/$buyerId/exist';
+
+  static String activeGigOrder(int gigId, int buyerId) =>
+      'gig-orders/gig/$gigId/buyer/$buyerId/active';
+
+  // =====================================================
+// Gig Order - Authenticated Users
 // =====================================================
 
+  static String gigOrderById(int orderId) =>
+      'gig-orders/$orderId';
 
 
 
