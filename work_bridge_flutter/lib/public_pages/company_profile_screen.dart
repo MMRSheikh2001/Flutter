@@ -33,6 +33,16 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
   final _postCodeCtrl = TextEditingController();
 
   LocationSelection _location = LocationSelection.empty;
+
+  // Address row id on the backend. Null on a brand-new company profile
+  // (no address saved yet) — the first save omits `locationId`, so the
+  // backend creates a fresh Address row. That row's id comes back in the
+  // save response and gets captured into this field immediately (see
+  // _save()), so a *second* save in the same session correctly sends
+  // `locationId` and updates that same row instead of creating another
+  // orphaned Address every time.
+  int? _locationId;
+
   File? _pickedImage;
   String? _existingImageUrl;
 
@@ -56,6 +66,7 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
     _existingImageUrl = (profile.image != null && profile.image!.isNotEmpty)
         ? '${ApiConstants.companyProfileImageUrl}${profile.image}'
         : null;
+    _locationId = profile.locationId;
     _location = LocationSelection(
       countryId: profile.locationCountryId,
       countryName: profile.locationCountryName,
@@ -97,6 +108,18 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
   Future<void> _save(int profileId) async {
     if (!_formKey.currentState!.validate()) return;
 
+    // The backend crashes (500) if locationPoliceStationId is null on
+    // save, and there's no server-side default/skip for it, so the
+    // address section is enforced as required here rather than optional.
+    if (_location.policeStationId == null) {
+      setState(() {
+        _errorMessage =
+            'Please complete the Company Address section (down to Police '
+            'Station) before saving.';
+      });
+      return;
+    }
+
     setState(() {
       _saving = true;
       _errorMessage = null;
@@ -105,58 +128,58 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
     try {
       final request = CompanyProfileRequestDTO(
         name: _nameCtrl.text.trim(),
-        phone: _phoneCtrl.text
-            .trim()
-            .isEmpty ? null : _phoneCtrl.text.trim(),
-        companyEmail:
-        _emailCtrl.text
-            .trim()
-            .isEmpty ? null : _emailCtrl.text.trim(),
-        companyDescription: _descriptionCtrl.text
-            .trim()
-            .isEmpty
+        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+        companyEmail: _emailCtrl.text.trim().isEmpty
+            ? null
+            : _emailCtrl.text.trim(),
+        companyDescription: _descriptionCtrl.text.trim().isEmpty
             ? null
             : _descriptionCtrl.text.trim(),
-        companyWebsite:
-        _websiteCtrl.text
-            .trim()
-            .isEmpty ? null : _websiteCtrl.text.trim(),
-        industry:
-        _industryCtrl.text
-            .trim()
-            .isEmpty ? null : _industryCtrl.text.trim(),
-        foundedYear: _foundedYearCtrl.text
-            .trim()
-            .isEmpty
+        companyWebsite: _websiteCtrl.text.trim().isEmpty
+            ? null
+            : _websiteCtrl.text.trim(),
+        industry: _industryCtrl.text.trim().isEmpty
+            ? null
+            : _industryCtrl.text.trim(),
+        foundedYear: _foundedYearCtrl.text.trim().isEmpty
             ? null
             : _foundedYearCtrl.text.trim(),
-        tradeLicenseNumber: _tradeLicenseCtrl.text
-            .trim()
-            .isEmpty
+        tradeLicenseNumber: _tradeLicenseCtrl.text.trim().isEmpty
             ? null
             : _tradeLicenseCtrl.text.trim(),
-        locationDetails: _locationDetailsCtrl.text
-            .trim()
-            .isEmpty
+        locationDetails: _locationDetailsCtrl.text.trim().isEmpty
             ? null
             : _locationDetailsCtrl.text.trim(),
-        locationPostCode:
-        _postCodeCtrl.text
-            .trim()
-            .isEmpty ? null : _postCodeCtrl.text.trim(),
+        locationPostCode: _postCodeCtrl.text.trim().isEmpty
+            ? null
+            : _postCodeCtrl.text.trim(),
         locationPoliceStationId: _location.policeStationId,
+        // Null on first save (no address exists yet) -> backend creates
+        // a new Address row. Non-null on every save after that -> backend
+        // updates that same row instead of creating a new one.
+        locationId: _locationId,
       );
 
-      await ref
+      final updated = await ref
           .read(companyProfileRepositoryProvider)
           .updateCompanyProfile(profileId, request, _pickedImage);
+
+      // Capture what the backend actually persisted — most importantly
+      // the Address id it just created (if this was the first save), so
+      // a second save in the same session sends it back and updates the
+      // same row instead of creating another one.
+      _locationId = updated.locationId;
+      _existingImageUrl = (updated.image != null && updated.image!.isNotEmpty)
+          ? '${ApiConstants.companyProfileImageUrl}${updated.image}'
+          : null;
+      _pickedImage = null; // now uploaded; stop showing the local file
 
       ref.invalidate(myCompanyProfileProvider);
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Company profile updated.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Company profile updated.')));
     } catch (e) {
       setState(() => _errorMessage = e.toString());
     } finally {
@@ -178,9 +201,9 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not remove logo: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not remove logo: $e')));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -194,38 +217,32 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
       appBar: AppBar(title: const Text('Company Profile')),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                        Icons.error_outline, size: 40, color: Colors.red),
-                    const SizedBox(height: 12),
-                    Text('Failed to load profile: $e',
-                        textAlign: TextAlign.center),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      onPressed: () => ref.invalidate(myCompanyProfileProvider),
-                      child: const Text('Retry'),
-                    ),
-                  ],
+        error: (e, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 40, color: Colors.red),
+                const SizedBox(height: 12),
+                Text('Failed to load profile: $e', textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () => ref.invalidate(myCompanyProfileProvider),
+                  child: const Text('Retry'),
                 ),
-              ),
+              ],
             ),
+          ),
+        ),
         data: (profile) {
           if (profile?.id == null) {
-            // Shouldn't normally happen — a CompanyProfile is created
-            // automatically at registration — but fail safely rather
-            // than crash if it's somehow missing.
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(
                   'No company profile found for this account. '
-                      'Please contact support.',
+                  'Please contact support.',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -250,12 +267,16 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                           backgroundImage: _pickedImage != null
                               ? FileImage(_pickedImage!)
                               : (_existingImageUrl != null
-                              ? NetworkImage(_existingImageUrl!)
-                              : null) as ImageProvider?,
-                          child: _pickedImage == null &&
-                              _existingImageUrl == null
-                              ? const Icon(Icons.apartment,
-                              size: 40, color: Colors.blue)
+                                        ? NetworkImage(_existingImageUrl!)
+                                        : null)
+                                    as ImageProvider?,
+                          child:
+                              _pickedImage == null && _existingImageUrl == null
+                              ? const Icon(
+                                  Icons.apartment,
+                                  size: 40,
+                                  color: Colors.blue,
+                                )
                               : null,
                         ),
                         Positioned(
@@ -269,8 +290,11 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                                 color: Colors.blue,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.camera_alt,
-                                  size: 16, color: Colors.white),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 16,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -283,14 +307,17 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                         onPressed: _saving
                             ? null
                             : () {
-                          if (_pickedImage != null) {
-                            setState(() => _pickedImage = null);
-                          } else {
-                            _removeImage(profile.id!);
-                          }
-                        },
-                        icon: const Icon(Icons.delete_outline,
-                            size: 18, color: Colors.red),
+                                if (_pickedImage != null) {
+                                  setState(() => _pickedImage = null);
+                                } else {
+                                  _removeImage(profile.id!);
+                                }
+                              },
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          size: 18,
+                          color: Colors.red,
+                        ),
                         label: const Text(
                           'Remove logo',
                           style: TextStyle(color: Colors.red),
@@ -322,10 +349,7 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                       labelText: 'Company Name',
                       prefixIcon: Icon(Icons.apartment_outlined),
                     ),
-                    validator: (v) =>
-                    (v == null || v
-                        .trim()
-                        .isEmpty)
+                    validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'Company name is required.'
                         : null,
                   ),
@@ -349,9 +373,7 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                       prefixIcon: Icon(Icons.email_outlined),
                     ),
                     validator: (v) {
-                      if (v == null || v
-                          .trim()
-                          .isEmpty) return null;
+                      if (v == null || v.trim().isEmpty) return null;
                       if (!v.contains('@')) return 'Enter a valid email.';
                       return null;
                     },
@@ -416,8 +438,12 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                   const SizedBox(height: 20),
 
                   const Text(
-                    'Company Address',
+                    'Company Address *',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const Text(
+                    'Required — select down to Police Station.',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                   const SizedBox(height: 10),
                   LocationCascade(
@@ -454,13 +480,13 @@ class _CompanyProfileScreenState extends ConsumerState<CompanyProfileScreen> {
                     ),
                     child: _saving
                         ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
                         : const Text('Save Changes'),
                   ),
                   const SizedBox(height: 16),
