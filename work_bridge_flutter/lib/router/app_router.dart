@@ -4,6 +4,17 @@ import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/educations_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/experience_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/extracurricular_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/full_resume_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/personal_info_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/portfolio_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/reference_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/resume_file_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/training_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/user_language_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/user_skill_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
 import 'package:work_bridge_flutter/job/screen/ai_interview_screen.dart';
@@ -26,7 +37,7 @@ class AppRouter {
   static const String jobDetails = '/job-details';
 
   static const String applications = '/applications';
-  static const String aiInterview='ai-interview';
+  static const String aiInterview = 'ai-interview';
 
   static const String orders = '/orders';
 
@@ -35,6 +46,19 @@ class AppRouter {
   static const String chat = '/chat';
 
   static const String profile = '/profile';
+
+  static const String personalInfo = '/personal-info';
+
+  static const String educations = '/educations';
+  static const String experiences = '/experiences';
+  static const String extracurriculars = '/extracurriculars';
+  static const String fullResumeScreen = '/full-resume-screen';
+  static const String portfolios = '/portfolios';
+  static const String references = '/references';
+  static const String resumeFile = '/resume-file';
+  static const String trainings = '/trainings';
+  static const String userLanguages = '/userLanguages';
+  static const String userSkills = '/userSkills';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -91,6 +115,33 @@ class AppRouter {
 
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileGate());
+
+      //CV Informations
+
+      case personalInfo:
+        return MaterialPageRoute(builder: (_) => const PersonalInfoScreen());
+      case educations:
+        return MaterialPageRoute(builder: (_) => const EducationsListScreen());
+      case experiences:
+        return MaterialPageRoute(builder: (_) => const ExperienceListScreen());
+      case extracurriculars:
+        return MaterialPageRoute(
+          builder: (_) => const ExtracurricularListScreen(),
+        );
+      case fullResumeScreen:
+        return MaterialPageRoute(builder: (_) => const FullResumeScreen());
+      case portfolios:
+        return MaterialPageRoute(builder: (_) => const PortfolioListScreen());
+      case references:
+        return MaterialPageRoute(builder: (_) => const ReferenceListScreen());
+      case resumeFile:
+        return MaterialPageRoute(builder: (_) => const ResumeFileScreen());
+      case trainings:
+        return MaterialPageRoute(builder: (_) => const TrainingListScreen());
+      case userLanguages:
+        return MaterialPageRoute(builder: (_) => const UserLanguageScreen());
+      case userSkills:
+        return MaterialPageRoute(builder: (_) => const UserSkillScreen());
 
       default:
         return MaterialPageRoute(
