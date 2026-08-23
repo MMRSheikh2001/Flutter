@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -139,9 +140,11 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     }
   }
 
+
   Future<void> downloadDeliveryFile() async {
-    if (order?.deliveryFileUrl == null ||
-        order!.deliveryFileUrl!.isEmpty) {
+    final fileName = order?.deliveryFileUrl;
+
+    if (fileName == null || fileName.isEmpty) {
       showMessage(
         'No delivery file available.',
         isError: true,
@@ -149,32 +152,57 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       return;
     }
 
-    final url = getDeliveryFileUrl(order!.deliveryFileUrl);
-    print(url);
+    final url = getDeliveryFileUrl(fileName);
 
-    if (url == null) {
+    if (url == null || url.isEmpty) {
       showMessage(
-        'Invalid delivery file.',
+        'Invalid delivery file URL.',
         isError: true,
       );
       return;
     }
 
-    final uri = Uri.parse(url);
+    debugPrint('Delivery URL: $url');
 
     try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      final uri = Uri.parse(url);
 
-      if (!launched && mounted) {
-        showMessage(
-          'Unable to open delivery file.',
-          isError: true,
+      if (kIsWeb) {
+        // ============================
+        // Flutter Web
+        // ============================
+
+        final launched = await launchUrl(
+          uri,
+          webOnlyWindowName: '_blank',
         );
+
+        if (!launched && mounted) {
+          showMessage(
+            'Unable to open delivery file.',
+            isError: true,
+          );
+        }
+      } else {
+        // ============================
+        // Android / iOS
+        // ============================
+
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+
+        if (!launched && mounted) {
+          showMessage(
+            'Unable to open delivery file.',
+            isError: true,
+          );
+        }
       }
     } catch (e) {
+      debugPrint('Download error: $e');
+
       if (!mounted) return;
 
       showMessage(
