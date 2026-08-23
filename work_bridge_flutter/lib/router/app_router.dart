@@ -6,6 +6,10 @@ import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_education_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_experience.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_extracurricular.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_portfolio.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_reference.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_training.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/educations_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/experience_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/extracurricular_list_screen.dart';
@@ -13,6 +17,7 @@ import 'package:work_bridge_flutter/cvinformations/screens/full_resume_screen.da
 import 'package:work_bridge_flutter/cvinformations/screens/personal_info_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/portfolio_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/reference_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/resume_file_import_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/resume_file_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/training_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_language_screen.dart';
@@ -62,11 +67,22 @@ class AppRouter {
   static const String addEditExperience = '/experience/add-edit';
 
   static const String extracurriculars = '/extracurriculars';
+  static const String addEditExtracurricular = '/extracurricular/add-edit';
+
   static const String fullResumeScreen = '/full-resume-screen';
+
   static const String portfolios = '/portfolios';
+  static const String addEditPortfolio = '/portfolio/add-edit';
+
   static const String references = '/references';
+  static const String addEditReference = '/reference/add-edit';
+
   static const String resumeFile = '/resume-file';
+  static const String resumeFileImport = '/resume-file-import';
+
   static const String trainings = '/trainings';
+  static const String addEditTraining = '/training/add-edit';
+
   static const String userLanguages = '/userLanguages';
   static const String userSkills = '/userSkills';
 
@@ -122,8 +138,7 @@ class AppRouter {
           builder: (_) => AiInterviewScreen(applicationId: applicationId),
         );
 
-      case orders:
-        return MaterialPageRoute(builder: (_) => const GigOrdersListScreen());
+
 
       case notifications:
         return MaterialPageRoute(
@@ -164,16 +179,46 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const ExtracurricularListScreen(),
         );
+      case addEditExtracurricular:
+        final extracurricularId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditExtracurricular(extracurricularId: extracurricularId),
+        );
+
+
       case fullResumeScreen:
         return MaterialPageRoute(builder: (_) => const FullResumeScreen());
+
       case portfolios:
         return MaterialPageRoute(builder: (_) => const PortfolioListScreen());
+      case addEditPortfolio:
+        final portfolioId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditPortfolio(portfolioId: portfolioId),
+        );
+
       case references:
         return MaterialPageRoute(builder: (_) => const ReferenceListScreen());
+      case addEditReference:
+        final referenceId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditReference(referenceId: referenceId),
+        );
+
       case resumeFile:
         return MaterialPageRoute(builder: (_) => const ResumeFileScreen());
+      case resumeFileImport:
+        return MaterialPageRoute(builder: (_) => const ResumeFileImportScreen());
+
       case trainings:
         return MaterialPageRoute(builder: (_) => const TrainingListScreen());
+      case addEditTraining:
+        final trainingId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditTraining(trainingId: trainingId),
+        );
+
+
       case userLanguages:
         return MaterialPageRoute(builder: (_) => const UserLanguageScreen());
       case userSkills:
