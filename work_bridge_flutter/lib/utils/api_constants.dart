@@ -437,7 +437,24 @@ class ApiConstants {
   static String gigOrderById(int orderId) =>
       'gig-orders/$orderId';
 
-  //Review
+  // ── Conversations ─────────────────────────────────────
+  static String conversationById(int id) => 'conversations/$id';
+  static String buyerConversations(int buyerId) => 'conversations/buyer/$buyerId';
+  static String countBuyerConversations(int buyerId) => 'conversations/buyer/$buyerId/count';
+
+  // ── Messages ──────────────────────────────────────────
+  static const String sendMessage = 'messages/';
+  static String messageById(int id) => 'messages/$id';
+  static String conversationMessages(int conversationId) => 'messages/conversation/$conversationId';
+  static String senderMessages(int senderId) => 'messages/sender/$senderId';
+  static String unreadMessages(int conversationId) => 'messages/conversation/$conversationId/unread';
+  static String countUnreadMessages(int conversationId) => 'messages/conversation/$conversationId/unread/count';
+  static String countUnreadMessagesForUser(int conversationId, int senderId) =>
+      'messages/conversation/$conversationId/unread/count/$senderId';
+  static String markConversationAsRead(int conversationId) =>
+      'messages/conversation/$conversationId/read';
+  static String latestMessage(int conversationId) =>
+      'messages/conversation/$conversationId/latest';
 
 
 

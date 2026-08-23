@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class MessageRequestDTO {
   final String? messageText;
   final int? conversationId;
@@ -22,6 +24,9 @@ class MessageRequestDTO {
       if (conversationId != null) 'conversationId': conversationId,
     };
   }
+
+  /// Optional helper to convert directly to a JSON string
+  String toJsonString() => json.encode(toJson());
 
   /// Helper method to create a modified copy of this object.
   MessageRequestDTO copyWith({
