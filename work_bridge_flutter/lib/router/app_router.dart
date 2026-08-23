@@ -4,6 +4,7 @@ import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
+import 'package:work_bridge_flutter/chat/screen/chat_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_education_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_experience.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_extracurricular.dart';
@@ -55,7 +56,10 @@ class AppRouter {
   static const String review = '/buyer-review';
 
   static const String notifications = '/notifications';
+
   static const String wallet = '/wallet';
+
+  static const String chatList = '/chat-list';
   static const String chat = '/chat';
 
   static const String profile = '/profile';
@@ -153,8 +157,14 @@ class AppRouter {
       case wallet:
         return MaterialPageRoute(builder: (_) => const WalletScreen());
 
-      case chat:
+      case chatList:
         return MaterialPageRoute(builder: (_) => const ChatListScreen());
+
+      case chat:
+        final conversationId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => ChatScreen(conversationId: conversationId),
+        );
 
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileGate());
