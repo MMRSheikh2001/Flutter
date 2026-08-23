@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:work_bridge_flutter/auth/request/user_request.dart';
 import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/gig/entity/response/gig_order_response.dart';
+import 'package:work_bridge_flutter/router/app_router.dart';
 import 'package:work_bridge_flutter/utils/api_constants.dart';
 import 'package:work_bridge_flutter/utils/api_client.dart';
 import 'package:work_bridge_flutter/utils/providers.dart';
@@ -334,19 +335,11 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   Future<void> goToReview() async {
     if (order?.id == null) return;
 
-    final role = await ref.read(storageServiceProvider).getRole();
-
-    if (!mounted) return;
-
-    if (role == UserRole.USER) {
-      Navigator.pushNamed(context, '/user/buyer-review', arguments: order!.id);
-    } else {
-      Navigator.pushNamed(
-        context,
-        '/company/buyer-review',
-        arguments: order!.id,
-      );
-    }
+    Navigator.pushNamed(
+      context,
+      AppRouter.review,
+      arguments: order!.id,
+    );
   }
 
   // =====================================================

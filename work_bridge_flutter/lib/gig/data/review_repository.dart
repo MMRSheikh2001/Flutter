@@ -98,4 +98,18 @@ class ReviewRepository {
       rethrow;
     }
   }
+
+  //Exists
+
+  Future<bool> existsByGigOrderId(int gigOrderId) async {
+    final response = await _apiClient.dio.get(
+      'reviews/gig-order/$gigOrderId/exists',
+    );
+
+    return response.data == true;
+  }
+
+
+
+
 }
