@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:work_bridge_flutter/gig/data/gig_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/gig/entity/response/gig_order_response.dart';
-import 'package:work_bridge_flutter/services/storage_service.dart';
+import 'package:work_bridge_flutter/router/app_router.dart';
+import 'package:work_bridge_flutter/utils/providers.dart';
 
-class GigOrdersListScreen extends StatefulWidget {
-  const GigOrdersListScreen({
-    super.key,
-    required this.gigRepository,
-    required this.storageService,
-  });
-
-  final GigRepository gigRepository;
-  final StorageService storageService;
+class GigOrdersListScreen extends ConsumerStatefulWidget {
+  const GigOrdersListScreen({super.key});
 
   @override
-  State<GigOrdersListScreen> createState() => _GigOrdersListScreenState();
+  ConsumerState<GigOrdersListScreen> createState() => _GigOrdersListScreenState();
 }
 
-class _GigOrdersListScreenState extends State<GigOrdersListScreen> {
+class _GigOrdersListScreenState extends ConsumerState<GigOrdersListScreen> {
   List<GigOrderResponseDTO> _orders = [];
 
   bool _isLoading = true;
@@ -36,8 +31,8 @@ class _GigOrdersListScreenState extends State<GigOrdersListScreen> {
     });
 
     try {
-      // Get logged-in user from secure storage.
-      final loginResponse = await widget.storageService.getUser();
+      // Get logged-in user from secure storage via provider.
+      final loginResponse = await ref.read(storageServiceProvider).getUser();
 
       if (loginResponse == null) {
         throw Exception('User session not found.');
@@ -53,7 +48,7 @@ class _GigOrdersListScreenState extends State<GigOrdersListScreen> {
       }
 
       // Buyer-side orders only.
-      final orders = await widget.gigRepository.getBuyerOrders(userId);
+      final orders = await ref.read(gigRepositoryProvider).getBuyerOrders(userId);
 
       if (!mounted) return;
 
@@ -126,20 +121,12 @@ class _GigOrdersListScreenState extends State<GigOrdersListScreen> {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          // Later:
-          // Navigate to GigOrderDetailsScreen.
-          //
-          // Example:
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (_) => GigOrderDetailsScreen(
-          //       orderId: order.id!,
-          //       gigRepository: widget.gigRepository,
-          //       storageService: widget.storageService,
-          //     ),
-          //   ),
-          // );
+          if (order.id != null) {
+            Navigator.of(context).pushNamed(
+              AppRouter.orderDetails,
+              arguments: order.id,
+            );
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

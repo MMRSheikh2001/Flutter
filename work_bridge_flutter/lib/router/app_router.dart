@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:work_bridge_flutter/auth/screen/auth_gate.dart';
 import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
@@ -23,7 +22,6 @@ import 'package:work_bridge_flutter/cvinformations/screens/resume_file_screen.da
 import 'package:work_bridge_flutter/cvinformations/screens/training_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_language_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_skill_screen.dart';
-import 'package:work_bridge_flutter/gig/data/gig_repository.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_details.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_order_details.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
@@ -34,8 +32,6 @@ import 'package:work_bridge_flutter/job/screen/job_details.dart';
 import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
 import 'package:work_bridge_flutter/public_pages/notifications_list_screen.dart';
 import 'package:work_bridge_flutter/public_pages/profile_gate.dart';
-import 'package:work_bridge_flutter/services/storage_service.dart';
-import 'package:work_bridge_flutter/utils/api_client.dart';
 import 'package:work_bridge_flutter/wallet/screen/wallet_screen.dart';
 
 class AppRouter {
@@ -51,7 +47,7 @@ class AppRouter {
   static const String jobDetails = '/job-details';
 
   static const String applications = '/applications';
-  static const String aiInterview = 'ai-interview';
+  static const String aiInterview = '/ai-interview';
 
   static const String orders = '/orders';
   static const String orderDetails = '/order-details';
@@ -89,14 +85,6 @@ class AppRouter {
 
   static const String userLanguages = '/userLanguages';
   static const String userSkills = '/userSkills';
-
-
-  final storageService = StorageService(
-    const FlutterSecureStorage(),
-  );
-  final apiClient = ApiClient(this.storageService);
-
-
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
