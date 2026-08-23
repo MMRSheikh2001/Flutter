@@ -4,6 +4,7 @@ import 'package:work_bridge_flutter/auth/screen/forgot_passsword_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_education_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/educations_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/experience_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/extracurricular_list_screen.dart';
@@ -16,6 +17,7 @@ import 'package:work_bridge_flutter/cvinformations/screens/training_list_screen.
 import 'package:work_bridge_flutter/cvinformations/screens/user_language_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/user_skill_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_details.dart';
+import 'package:work_bridge_flutter/gig/screen/gig_order_details.dart';
 import 'package:work_bridge_flutter/gig/screen/gig_orders_list_screen.dart';
 import 'package:work_bridge_flutter/gig/screen/gigs_search_screen.dart';
 import 'package:work_bridge_flutter/job/screen/ai_interview_screen.dart';
@@ -42,6 +44,7 @@ class AppRouter {
   static const String aiInterview = 'ai-interview';
 
   static const String orders = '/orders';
+  static const String orderDetails = '/order-details';
 
   static const String notifications = '/notifications';
   static const String wallet = '/wallet';
@@ -52,6 +55,9 @@ class AppRouter {
   static const String personalInfo = '/personal-info';
 
   static const String educations = '/educations';
+  static const String addEditEducation = '/educations';
+
+
   static const String experiences = '/experiences';
   static const String extracurriculars = '/extracurriculars';
   static const String fullResumeScreen = '/full-resume-screen';
@@ -85,6 +91,15 @@ class AppRouter {
         final gigId = settings.arguments as int;
         return MaterialPageRoute(
           builder: (_) => GigDetails(gigId: gigId),
+        );
+
+      case orders:
+        return MaterialPageRoute(builder: (_) => const GigOrdersListScreen());
+
+      case orderDetails:
+        final gigOrderId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => GigOrderDetails(gigOrderId: gigOrderId),
         );
 
 
@@ -132,6 +147,13 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const PersonalInfoScreen());
       case educations:
         return MaterialPageRoute(builder: (_) => const EducationsListScreen());
+
+      case addEditEducation:
+        final educationId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditEducationScreen(educationId: educationId),
+        );
+
       case experiences:
         return MaterialPageRoute(builder: (_) => const ExperienceListScreen());
       case extracurriculars:
