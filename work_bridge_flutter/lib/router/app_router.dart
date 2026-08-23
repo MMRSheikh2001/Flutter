@@ -115,7 +115,7 @@ class AppRouter {
       case orderDetails:
         final gigOrderId = settings.arguments as int;
         return MaterialPageRoute(
-          builder: (_) => GigOrderDetails(gigOrderId: gigOrderId),
+          builder: (_) => GigOrderDetailsScreen(gigOrderId: gigOrderId),
         );
 
       case jobs:
