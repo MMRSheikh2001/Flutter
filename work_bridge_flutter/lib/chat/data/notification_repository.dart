@@ -69,7 +69,7 @@ class NotificationRepository {
     NotificationType type,
   ) async {
     final response = await _dio.get(
-      ApiConstants.notificationsByType(userId, type.name),
+      ApiConstants.notificationsByType(userId, type.toJson()),
     );
 
     return (response.data as List)
