@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:work_bridge_flutter/auth/request/user_request.dart';
 import 'package:work_bridge_flutter/auth/providers.dart';
 import 'package:work_bridge_flutter/gig/entity/response/gig_order_response.dart';
@@ -10,10 +11,7 @@ import 'package:work_bridge_flutter/utils/providers.dart';
 import '../../enums/gig_order_status.dart';
 
 class GigOrderDetailsScreen extends ConsumerStatefulWidget {
-  const GigOrderDetailsScreen({
-    super.key,
-    required this.gigOrderId,
-  });
+  const GigOrderDetailsScreen({super.key, required this.gigOrderId});
 
   final int gigOrderId;
 
@@ -47,9 +45,9 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     });
 
     try {
-      final result = await ref.read(gigRepositoryProvider).getOrderById(
-        widget.gigOrderId,
-      );
+      final result = await ref
+          .read(gigRepositoryProvider)
+          .getOrderById(widget.gigOrderId);
 
       if (!mounted) return;
 
@@ -64,10 +62,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
         loading = false;
       });
 
-      showMessage(
-        apiErrorMessage(e),
-        isError: true,
-      );
+      showMessage(apiErrorMessage(e), isError: true);
     }
   }
 
@@ -93,10 +88,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      showMessage(
-        'Unable to accept quote.',
-        isError: true,
-      );
+      showMessage('Unable to accept quote.', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -137,16 +129,58 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      showMessage(
-        'Unable to reject quote.',
-        isError: true,
-      );
+      showMessage('Unable to reject quote.', isError: true);
     } finally {
       if (mounted) {
         setState(() {
           saving = false;
         });
       }
+    }
+  }
+
+  Future<void> downloadDeliveryFile() async {
+    if (order?.deliveryFileUrl == null ||
+        order!.deliveryFileUrl!.isEmpty) {
+      showMessage(
+        'No delivery file available.',
+        isError: true,
+      );
+      return;
+    }
+
+    final url = getDeliveryFileUrl(order!.deliveryFileUrl);
+    print(url);
+
+    if (url == null) {
+      showMessage(
+        'Invalid delivery file.',
+        isError: true,
+      );
+      return;
+    }
+
+    final uri = Uri.parse(url);
+
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched && mounted) {
+        showMessage(
+          'Unable to open delivery file.',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      showMessage(
+        'Unable to open delivery file.',
+        isError: true,
+      );
     }
   }
 
@@ -172,10 +206,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      showMessage(
-        'Unable to accept delivery.',
-        isError: true,
-      );
+      showMessage('Unable to accept delivery.', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -216,10 +247,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      showMessage(
-        'Unable to reject delivery.',
-        isError: true,
-      );
+      showMessage('Unable to reject delivery.', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -239,7 +267,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     final confirmed = await showConfirmationDialog(
       title: 'Cancel Order',
       message:
-      'Cancel this order?\n\nSeller will have 7 days to dispute if applicable.',
+          'Cancel this order?\n\nSeller will have 7 days to dispute if applicable.',
       confirmText: 'Cancel Order',
       isDanger: true,
     );
@@ -261,10 +289,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
 
-      showMessage(
-        'Unable to cancel order.',
-        isError: true,
-      );
+      showMessage('Unable to cancel order.', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -286,11 +311,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     if (!mounted) return;
 
     if (role == UserRole.USER) {
-      Navigator.pushNamed(
-        context,
-        '/user/buyer-review',
-        arguments: order!.id,
-      );
+      Navigator.pushNamed(context, '/user/buyer-review', arguments: order!.id);
     } else {
       Navigator.pushNamed(
         context,
@@ -304,10 +325,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   // Helpers
   // =====================================================
 
-  void showMessage(
-      String message, {
-        bool isError = false,
-      }) {
+  void showMessage(String message, {bool isError = false}) {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context)
@@ -345,9 +363,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
               },
               child: Text(
                 confirmText,
-                style: TextStyle(
-                  color: isDanger ? Colors.red : null,
-                ),
+                style: TextStyle(color: isDanger ? Colors.red : null),
               ),
             ),
           ],
@@ -374,9 +390,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   String formatPrice(double? price) {
     if (price == null) return '0.00';
 
-    return price.toStringAsFixed(
-      price.truncateToDouble() == price ? 0 : 2,
-    );
+    return price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2);
   }
 
   String? getGigImageUrl(String? fileName) {
@@ -456,20 +470,12 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
         children: [
           const Text(
             'Waiting for Seller Quote',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'The seller has not sent a quotation yet.',
-          ),
+          const Text('The seller has not sent a quotation yet.'),
           const SizedBox(height: 20),
-          buildDangerButton(
-            text: 'Cancel Order',
-            onPressed: cancelOrder,
-          ),
+          buildDangerButton(text: 'Cancel Order', onPressed: cancelOrder),
         ],
       ),
     );
@@ -486,10 +492,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
         children: [
           const Text(
             'Seller Quote',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Text(
@@ -501,9 +504,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Accept or reject the quotation.',
-          ),
+          const Text('Accept or reject the quotation.'),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -538,30 +539,20 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
         children: [
           const Text(
             'Seller is working on your order.',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           const Text(
             'Expected Delivery',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
           Text(
             formatDate(order!.expectedDeliveryAt),
-            style: const TextStyle(
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 20),
-          buildDangerButton(
-            text: 'Cancel Order',
-            onPressed: cancelOrder,
-          ),
+          buildDangerButton(text: 'Cancel Order', onPressed: cancelOrder),
         ],
       ),
     );
@@ -572,9 +563,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   // =====================================================
 
   Widget buildDelivered() {
-    final deliveryUrl = getDeliveryFileUrl(
-      order!.deliveryFileUrl,
-    );
+    final deliveryUrl = getDeliveryFileUrl(order!.deliveryFileUrl);
 
     return buildCard(
       child: Column(
@@ -589,10 +578,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
             ),
             child: const Text(
               'Delivery Received',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
 
@@ -600,16 +586,12 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
 
           const Text(
             'Delivery Message',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 8),
 
-          Text(
-            order!.deliveryMessage ?? '',
-          ),
+          Text(order!.deliveryMessage ?? ''),
 
           const SizedBox(height: 20),
 
@@ -617,15 +599,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {
-                  /*
-                   * Browser/file opening will be wired according
-                   * to your Flutter file-opening implementation.
-                   */
-                  showMessage(
-                    'Delivery file: $deliveryUrl',
-                  );
-                },
+                onPressed: downloadDeliveryFile,
                 icon: const Icon(Icons.download),
                 label: const Text('Download Delivery'),
               ),
@@ -667,16 +641,10 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
           text: 'Waiting until ',
           children: [
             TextSpan(
-              text: formatDate(
-                order!.sellerDisputeDeadline,
-              ),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              text: formatDate(order!.sellerDisputeDeadline),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const TextSpan(
-              text: ' for seller dispute.',
-            ),
+            const TextSpan(text: ' for seller dispute.'),
           ],
         ),
       ),
@@ -691,7 +659,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     return buildWarningContainer(
       child: const Text(
         'Delivery rejected.\n\n'
-            'Waiting for seller response.',
+        'Waiting for seller response.',
       ),
     );
   }
@@ -704,7 +672,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     return buildInfoContainer(
       child: const Text(
         'Seller raised a dispute.\n\n'
-            'Waiting for admin decision.',
+        'Waiting for admin decision.',
       ),
     );
   }
@@ -720,25 +688,16 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
         children: [
           const Text(
             'Order Completed',
-            style: TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Delivery accepted successfully.',
-          ),
+          const Text('Delivery accepted successfully.'),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: goToReview,
-              child: Text(
-                reviewExists
-                    ? 'Edit Review'
-                    : 'Write Review',
-              ),
+              child: Text(reviewExists ? 'Edit Review' : 'Write Review'),
             ),
           ),
         ],
@@ -752,9 +711,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
 
   Widget buildPaymentReleased() {
     return buildInfoContainer(
-      child: const Text(
-        'Admin released payment to seller after dispute.',
-      ),
+      child: const Text('Admin released payment to seller after dispute.'),
     );
   }
 
@@ -764,9 +721,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
 
   Widget buildRefunded() {
     return buildSuccessContainer(
-      child: const Text(
-        'Your money has been refunded.',
-      ),
+      child: const Text('Your money has been refunded.'),
     );
   }
 
@@ -778,7 +733,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     return buildSuccessContainer(
       child: const Text(
         'Seller cancelled the order.\n\n'
-            'Your payment has been refunded.',
+        'Your payment has been refunded.',
       ),
     );
   }
@@ -789,9 +744,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
 
   Widget buildQuoteRejected() {
     return buildInfoContainer(
-      child: const Text(
-        'You rejected the seller\'s quotation.',
-      ),
+      child: const Text('You rejected the seller\'s quotation.'),
     );
   }
 
@@ -799,16 +752,11 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   // Common UI
   // =====================================================
 
-  Widget buildCard({
-    required Widget child,
-  }) {
+  Widget buildCard({required Widget child}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(16), child: child),
     );
   }
 
@@ -824,13 +772,13 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       ),
       child: saving
           ? const SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: Colors.white,
-        ),
-      )
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
           : Text(text),
     );
   }
@@ -847,21 +795,18 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       ),
       child: saving
           ? const SizedBox(
-        height: 20,
-        width: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: Colors.white,
-        ),
-      )
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
           : Text(text),
     );
   }
 
-  Widget buildWarningContainer({
-    String? title,
-    required Widget child,
-  }) {
+  Widget buildWarningContainer({String? title, required Widget child}) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -869,9 +814,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.amber.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.amber.shade200,
-        ),
+        border: Border.all(color: Colors.amber.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -879,10 +822,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
           if (title != null) ...[
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 10),
           ],
@@ -892,9 +832,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
     );
   }
 
-  Widget buildInfoContainer({
-    required Widget child,
-  }) {
+  Widget buildInfoContainer({required Widget child}) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -902,17 +840,13 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.blue.shade200,
-        ),
+        border: Border.all(color: Colors.blue.shade200),
       ),
       child: child,
     );
   }
 
-  Widget buildSuccessContainer({
-    required Widget child,
-  }) {
+  Widget buildSuccessContainer({required Widget child}) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -920,9 +854,7 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
       decoration: BoxDecoration(
         color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.green.shade200,
-        ),
+        border: Border.all(color: Colors.green.shade200),
       ),
       child: child,
     );
@@ -935,170 +867,127 @@ class _GigOrderDetailsScreenState extends ConsumerState<GigOrderDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gig Order Details'),
-      ),
+      appBar: AppBar(title: const Text('Gig Order Details')),
       body: loading && order == null
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
+          ? const Center(child: CircularProgressIndicator())
           : order == null
-          ? const Center(
-        child: Text('Unable to load order.'),
-      )
+          ? const Center(child: Text('Unable to load order.'))
           : RefreshIndicator(
-        onRefresh: loadOrder,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // =================================
-              // Header
-              // =================================
-
-              buildCard(
-                child: Row(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              onRefresh: loadOrder,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: ClipRRect(
-                        borderRadius:
-                        BorderRadius.circular(8),
-                        child: getGigImageUrl(
-                          order!.gigImage,
-                        ) !=
-                            null
-                            ? Image.network(
-                          getGigImageUrl(
-                            order!.gigImage,
-                          )!,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (
-                              context,
-                              error,
-                              stackTrace,
-                              ) {
-                            return Container(
-                              color:
-                              Colors.grey.shade200,
-                              child: const Icon(
-                                Icons.image,
-                                size: 40,
-                              ),
-                            );
-                          },
-                        )
-                            : Container(
-                          color:
-                          Colors.grey.shade200,
-                          child: const Icon(
-                            Icons.image,
-                            size: 40,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 16),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    // =================================
+                    // Header
+                    // =================================
+                    buildCard(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            order!.gigTitle ?? '',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            width: 90,
+                            height: 90,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: getGigImageUrl(order!.gigImage) != null
+                                  ? Image.network(
+                                      getGigImageUrl(order!.gigImage)!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              color: Colors.grey.shade200,
+                                              child: const Icon(
+                                                Icons.image,
+                                                size: 40,
+                                              ),
+                                            );
+                                          },
+                                    )
+                                  : Container(
+                                      color: Colors.grey.shade200,
+                                      child: const Icon(Icons.image, size: 40),
+                                    ),
                             ),
                           ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(width: 16),
 
-                          Text.rich(
-                            TextSpan(
-                              text: 'Seller: ',
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TextSpan(
-                                  text:
-                                  order!.sellerName ??
-                                      '',
-                                  style:
-                                  const TextStyle(
-                                    fontWeight:
-                                    FontWeight.bold,
+                                Text(
+                                  order!.gigTitle ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
+
+                                const SizedBox(height: 8),
+
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Seller: ',
+                                    children: [
+                                      TextSpan(
+                                        text: order!.sellerName ?? '',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                Row(
+                                  children: [
+                                    const Text('Status: '),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        order!.status!.toJson(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                Text('Order #${order!.id}'),
                               ],
                             ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          Row(
-                            children: [
-                              const Text(
-                                'Status: ',
-                              ),
-                              Container(
-                                padding:
-                                const EdgeInsets
-                                    .symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration:
-                                BoxDecoration(
-                                  color:
-                                  Colors.blue,
-                                  borderRadius:
-                                  BorderRadius
-                                      .circular(12),
-                                ),
-                                child: Text(
-                                  order!.status!
-                                      .toJson(),
-                                  style:
-                                  const TextStyle(
-                                    color:
-                                    Colors.white,
-                                    fontSize: 12,
-                                    fontWeight:
-                                    FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          Text(
-                            'Order #${order!.id}',
                           ),
                         ],
                       ),
                     ),
+
+                    // =================================
+                    // Status-specific content
+                    // =================================
+                    buildStatusContent(),
                   ],
                 ),
               ),
-
-              // =================================
-              // Status-specific content
-              // =================================
-
-              buildStatusContent(),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
