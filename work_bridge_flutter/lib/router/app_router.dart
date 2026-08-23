@@ -5,6 +5,7 @@ import 'package:work_bridge_flutter/auth/screen/login_screen.dart';
 import 'package:work_bridge_flutter/auth/screen/register_screen.dart';
 import 'package:work_bridge_flutter/chat/screen/chat_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/add_edit_education_screen.dart';
+import 'package:work_bridge_flutter/cvinformations/screens/add_edit_experience.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/educations_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/experience_list_screen.dart';
 import 'package:work_bridge_flutter/cvinformations/screens/extracurricular_list_screen.dart';
@@ -55,10 +56,11 @@ class AppRouter {
   static const String personalInfo = '/personal-info';
 
   static const String educations = '/educations';
-  static const String addEditEducation = '/educations';
-
+  static const String addEditEducation = '/education/add-edit';
 
   static const String experiences = '/experiences';
+  static const String addEditExperience = '/experience/add-edit';
+
   static const String extracurriculars = '/extracurriculars';
   static const String fullResumeScreen = '/full-resume-screen';
   static const String portfolios = '/portfolios';
@@ -89,9 +91,7 @@ class AppRouter {
 
       case gigDetails:
         final gigId = settings.arguments as int;
-        return MaterialPageRoute(
-          builder: (_) => GigDetails(gigId: gigId),
-        );
+        return MaterialPageRoute(builder: (_) => GigDetails(gigId: gigId));
 
       case orders:
         return MaterialPageRoute(builder: (_) => const GigOrdersListScreen());
@@ -101,8 +101,6 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => GigOrderDetails(gigOrderId: gigOrderId),
         );
-
-
 
       case jobs:
         return MaterialPageRoute(builder: (_) => const JobsSearchScreen());
@@ -156,6 +154,12 @@ class AppRouter {
 
       case experiences:
         return MaterialPageRoute(builder: (_) => const ExperienceListScreen());
+      case addEditExperience:
+        final experienceId = settings.arguments as int?;
+        return MaterialPageRoute(
+          builder: (_) => AddEditExperience(experienceId: experienceId),
+        );
+
       case extracurriculars:
         return MaterialPageRoute(
           builder: (_) => const ExtracurricularListScreen(),
