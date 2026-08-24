@@ -47,3 +47,10 @@ final latestMessageProvider = FutureProvider.family
           .watch(conversationRepositoryProvider)
           .getLatestMessage(conversationId);
     });
+
+final conversationProvider = FutureProvider.family
+    .autoDispose<ConversationResponseDTO, int>((ref, conversationId) async {
+  return ref
+      .watch(conversationRepositoryProvider)
+      .getConversationById(conversationId);
+});
