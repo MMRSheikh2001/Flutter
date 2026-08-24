@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,7 +25,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  File? _selectedFile;
+  File? _pickedFile;
+  Uint8List? _pickedFileBytes;
+  String? _pickedFileName;
+
   bool _sending = false;
   bool _markingAsRead = false;
 
@@ -77,40 +81,79 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   // ===========================================================================
   // PICK ATTACHMENT
   // ===========================================================================
+  //
+  // Future<void> _pickAttachment() async {
+  //   try {
+  //     final result = await FilePicker.pickFile(type: FileType.any);
+  //
+  //     if (result == null) {
+  //       return;
+  //     }
+  //
+  //     final path = result?.path;
+  //     print("===========================================================jjhfvj====================");
+  //     print(path);
+  //
+  //     if (path == null || path.isEmpty) {
+  //       if (!mounted) return;
+  //
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Could not access the selected file.')),
+  //       );
+  //
+  //       return;
+  //     }
+  //
+  //     setState(() {
+  //       _selectedFile = File(path);
+  //     });
+  //
+  //
+  //   } catch (e) {
+  //     if (!mounted) return;
+  //
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text('Could not select file: $e')));
+  //   }
+  // }
+
 
   Future<void> _pickAttachment() async {
     try {
       final result = await FilePicker.pickFile(type: FileType.any);
 
+      // 1. User canceled the picker
       if (result == null) {
         return;
       }
 
-      final path = result?.path;
-      print("===========================================================jjhfvj====================");
-      print(path);
 
-      if (path == null || path.isEmpty) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not access the selected file.')),
-        );
-
-        return;
+      // 4. Update State Cross-Platform
+      if (kIsWeb) {
+        // On Web, use file.bytes instead of File(path)
+        final Uint8List fileBytes = await result.readAsBytes();
+        setState(() {
+          _pickedFile = null;
+          _pickedFileBytes = fileBytes;
+          _pickedFileName = result.name;
+        });
+      } else {
+        // On Mobile / Desktop, file.path is guaranteed to be non-null
+        if (result.path != null) {
+          setState(() {
+            _pickedFile = File(result.path!);
+            _pickedFileBytes = null;
+            _pickedFileName = result.name;
+          });
+        }
       }
-
-      setState(() {
-        _selectedFile = File(path);
-      });
-
-
     } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Could not select file: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking file: $e')),
+        );
+      }
     }
   }
 
@@ -120,7 +163,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _removeSelectedFile() {
     setState(() {
-      _selectedFile = null;
+      _pickedFile = null;
+      _pickedFileBytes = null;
+      _pickedFileName = null;
     });
   }
 
@@ -131,7 +176,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
 
-    if (text.isEmpty && _selectedFile == null) {
+    if (text.isEmpty && _pickedFile == null && _pickedFileBytes == null) {
       return;
     }
 
@@ -159,18 +204,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         conversationId: widget.conversationId,
       );
 
-      await ref
-          .read(conversationRepositoryProvider)
-          .sendMessage(
+      await ref.read(conversationRepositoryProvider).sendMessage(
             message: request,
             senderId: userId,
-            attachment: _selectedFile,
+            attachment: _pickedFile,
+            bytes: _pickedFileBytes,
+            fileName: _pickedFileName,
           );
 
       _messageController.clear();
 
       setState(() {
-        _selectedFile = null;
+        _pickedFile = null;
+        _pickedFileBytes = null;
+        _pickedFileName = null;
       });
 
       ref.invalidate(conversationMessagesProvider(widget.conversationId));
@@ -261,7 +308,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               },
             ),
           ),
-          if (_selectedFile != null) _buildSelectedFilePreview(),
+          if (_pickedFile != null || _pickedFileBytes != null)
+            _buildSelectedFilePreview(),
           _buildMessageInput(conversationAsync),
         ],
       ),
@@ -505,8 +553,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   // ===========================================================================
 
   Widget _buildSelectedFilePreview() {
-    final fileName = _selectedFile!.path.split(Platform.pathSeparator).last;
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -519,7 +565,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           const Icon(Icons.attach_file, color: Colors.blue),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            child: Text(
+              _pickedFileName ?? 'Selected file',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           IconButton(
             onPressed: _removeSelectedFile,

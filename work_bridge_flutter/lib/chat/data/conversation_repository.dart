@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:work_bridge_flutter/chat/models/request/message_request.dart';
 import 'package:work_bridge_flutter/chat/models/response/conversation_response.dart';
@@ -37,11 +38,13 @@ class ConversationRepository {
   // MESSAGES
   // ===========================================================================
 
-  /// Sends a message. Uses `MultipartFile` if an attachment (File) is present.
+  /// Sends a message. Uses `MultipartFile` if an attachment (File or bytes) is present.
   Future<MessageResponseDTO> sendMessage({
     required MessageRequestDTO message,
     required int senderId,
     File? attachment,
+    Uint8List? bytes,
+    String? fileName,
   }) async {
     final formData = FormData.fromMap({
       'message': MultipartFile.fromString(
@@ -49,12 +52,29 @@ class ConversationRepository {
         contentType: DioMediaType('application', 'json'),
         filename: '',
       ),
-      if (attachment != null)
-        'attachment': await MultipartFile.fromFile(
-          attachment.path,
-          filename: attachment.path.split('/').last,
-        ),
     });
+
+    if (attachment != null) {
+      formData.files.add(
+        MapEntry(
+          'attachment',
+          await MultipartFile.fromFile(
+            attachment.path,
+            filename: attachment.path.split('/').last,
+          ),
+        ),
+      );
+    } else if (bytes != null) {
+      formData.files.add(
+        MapEntry(
+          'attachment',
+          MultipartFile.fromBytes(
+            bytes,
+            filename: fileName ?? 'attachment',
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.post(
       ApiConstants.sendMessage,
