@@ -477,5 +477,18 @@ class ApiConstants {
       'withdraws/$withdrawId/user/$userId';
 
 
+  // ── Payments ───────────────────────────────────────────
+  static String createDeposit(int userId) => 'payments/deposit/$userId';
+  static String paymentById(int id) => 'payments/$id';
+  static String paymentByGatewayTxnId(String gatewayTransactionId) =>
+      'payments/gateway/$gatewayTransactionId';
+  static String userPayments(int userId) => 'payments/user/$userId';
+
+
+
+
+
+
+
 
 }
