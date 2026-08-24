@@ -86,7 +86,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         return;
       }
 
-      final path = result.path;
+      final path = result?.path;
       print("===========================================================jjhfvj====================");
       print(path);
 
