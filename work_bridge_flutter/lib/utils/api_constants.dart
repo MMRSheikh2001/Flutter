@@ -457,7 +457,11 @@ class ApiConstants {
       'messages/conversation/$conversationId/latest';
 
 
-
+// ── Wallet ─────────────────────────────────────────────
+  static String walletById(int id) => 'wallets/$id';
+  static String walletByUserId(int userId) => 'wallets/user/$userId';
+  static String walletBalance(int userId) => 'wallets/user/$userId/balance';
+  static String walletFrozenBalance(int userId) => 'wallets/user/$userId/frozen-balance';
 
 
 
