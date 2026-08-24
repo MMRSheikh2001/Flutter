@@ -34,7 +34,10 @@ import 'package:work_bridge_flutter/job/screen/job_details.dart';
 import 'package:work_bridge_flutter/job/screen/jobs_search_Screen.dart';
 import 'package:work_bridge_flutter/public_pages/notifications_list_screen.dart';
 import 'package:work_bridge_flutter/public_pages/profile_gate.dart';
+import 'package:work_bridge_flutter/wallet/screen/deposit_screen.dart';
+import 'package:work_bridge_flutter/wallet/screen/transaction_screen.dart';
 import 'package:work_bridge_flutter/wallet/screen/wallet_screen.dart';
+import 'package:work_bridge_flutter/wallet/screen/withdraw_screen.dart';
 
 class AppRouter {
   static const String root = '/';
@@ -58,6 +61,9 @@ class AppRouter {
   static const String notifications = '/notifications';
 
   static const String wallet = '/wallet';
+  static const String deposit = '/deposit';
+  static const String withdraw = '/withdraw';
+  static const String transaction = '/transaction';
 
   static const String chatList = '/chat-list';
   static const String chat = '/chat';
@@ -156,6 +162,12 @@ class AppRouter {
 
       case wallet:
         return MaterialPageRoute(builder: (_) => const WalletScreen());
+      case deposit:
+        return MaterialPageRoute(builder: (_) => const DepositScreen());
+      case withdraw:
+        return MaterialPageRoute(builder: (_) => const WithdrawScreen());
+      case transaction:
+        return MaterialPageRoute(builder: (_) => const TransactionScreen());
 
       case chatList:
         return MaterialPageRoute(builder: (_) => const ChatListScreen());
