@@ -463,7 +463,18 @@ class ApiConstants {
   static String walletBalance(int userId) => 'wallets/user/$userId/balance';
   static String walletFrozenBalance(int userId) => 'wallets/user/$userId/frozen-balance';
 
+  // ── Transactions ───────────────────────────────────────
+  static String transactionById(int id) => 'transactions/$id';
+  static String transactionsFromUser(int userId) => 'transactions/from/$userId';
+  static String transactionsToUser(int userId) => 'transactions/to/$userId';
+  static String userTransactionHistory(int userId) => 'transactions/history/$userId';
 
+
+  // ── Withdraws ──────────────────────────────────────────
+  static const String createWithdraw = 'withdraws/';
+  static String userWithdraws(int userId) => 'withdraws/user/$userId';
+  static String withdrawById(int withdrawId, int userId) =>
+      'withdraws/$withdrawId/user/$userId';
 
 
 
