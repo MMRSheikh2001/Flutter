@@ -7,6 +7,7 @@ import 'package:work_bridge_flutter/cvinformations/models/request/user_language_
 import 'package:work_bridge_flutter/cvinformations/models/response/user_language_response.dart';
 import 'package:work_bridge_flutter/enums/language_proficiency.dart';
 import 'package:work_bridge_flutter/masterdata/models/response/language_response.dart';
+import 'package:work_bridge_flutter/utils/api_client.dart';
 import 'package:work_bridge_flutter/utils/providers.dart';
 
 class UserLanguageScreen extends ConsumerStatefulWidget {
@@ -27,7 +28,6 @@ class _UserLanguageScreenState
   int? _editingLanguageId;
 
   bool _isSaving = false;
-  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +77,7 @@ class _UserLanguageScreenState
     final profileId = loginResponse.profileId!;
 
     final languagesAsync = ref.watch(
-      masterDataRepositoryProvider,
+      allLanguagesProvider,
     );
 
     return RefreshIndicator(
@@ -130,7 +130,7 @@ class _UserLanguageScreenState
   Widget _buildFormCard(
       BuildContext context,
       int profileId,
-      AsyncValue<dynamic> languagesAsync,
+      AsyncValue<List<LanguageResponseDTO>> languagesAsync,
       ) {
     final isEditing = _editingLanguageId != null;
 
@@ -171,17 +171,14 @@ class _UserLanguageScreenState
                   ),
                 ),
                 data: (languages) {
-                  final languageList =
-                  languages as List<LanguageResponseDTO>;
-
                   return DropdownButtonFormField<LanguageResponseDTO>(
-                    value: _selectedLanguage,
+                    initialValue: _selectedLanguage,
                     decoration: const InputDecoration(
                       labelText: 'Language',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.language),
                     ),
-                    items: languageList.map((language) {
+                    items: languages.map((language) {
                       return DropdownMenuItem<LanguageResponseDTO>(
                         value: language,
                         child: Text(
@@ -213,7 +210,7 @@ class _UserLanguageScreenState
               // ------------------------------------------------
 
               DropdownButtonFormField<LanguageProficiency>(
-                value: _selectedProficiency,
+                initialValue: _selectedProficiency,
                 decoration: const InputDecoration(
                   labelText: 'Proficiency',
                   border: OutlineInputBorder(),
@@ -523,7 +520,7 @@ class _UserLanguageScreenState
       );
     } catch (error) {
       _showMessage(
-        _getErrorMessage(error),
+        apiErrorMessage(error),
         isError: true,
       );
     } finally {
@@ -653,10 +650,6 @@ class _UserLanguageScreenState
       int profileId,
       int languageId,
       ) async {
-    setState(() {
-      _isDeleting = true;
-    });
-
     try {
       await ref.read(
         cvRepositoryProvider,
@@ -675,13 +668,13 @@ class _UserLanguageScreenState
       );
     } catch (error) {
       _showMessage(
-        _getErrorMessage(error),
+        apiErrorMessage(error),
         isError: true,
       );
     } finally {
       if (mounted) {
         setState(() {
-          _isDeleting = false;
+          _isSaving = false;
         });
       }
     }
@@ -708,16 +701,6 @@ class _UserLanguageScreenState
       case LanguageProficiency.native:
         return 'Native';
     }
-  }
-
-  String _getErrorMessage(Object error) {
-    final message = error.toString();
-
-    if (message.isEmpty) {
-      return 'Something went wrong. Please try again.';
-    }
-
-    return message;
   }
 
   void _showMessage(
