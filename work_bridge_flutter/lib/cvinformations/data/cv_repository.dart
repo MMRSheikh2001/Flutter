@@ -418,9 +418,11 @@ class CvRepository {
 
 
   Future<PortfolioResponseDTO> savePortfolio(
-      PortfolioRequestDTO request,
-      File? file,
-      ) async {
+    PortfolioRequestDTO request,
+    File? file, {
+    Uint8List? bytes,
+    String? fileName,
+  }) async {
     final formData = FormData();
 
     // Portfolio JSON
@@ -448,6 +450,16 @@ class CvRepository {
           ),
         ),
       );
+    } else if (bytes != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          MultipartFile.fromBytes(
+            bytes,
+            filename: fileName ?? 'portfolio_file',
+          ),
+        ),
+      );
     }
 
     final response = await _dio.post(
@@ -458,10 +470,9 @@ class CvRepository {
     return PortfolioResponseDTO.fromJson(response.data);
   }
 
-
   Future<PortfolioResponseDTO> getPortfolioById(
-      int id,
-      ) async {
+    int id,
+  ) async {
     final response = await _dio.get(
       ApiConstants.portfolioById(id),
     );
@@ -469,12 +480,13 @@ class CvRepository {
     return PortfolioResponseDTO.fromJson(response.data);
   }
 
-
   Future<PortfolioResponseDTO> updatePortfolio(
-      int id,
-      PortfolioRequestDTO request,
-      File? file,
-      ) async {
+    int id,
+    PortfolioRequestDTO request,
+    File? file, {
+    Uint8List? bytes,
+    String? fileName,
+  }) async {
     final formData = FormData();
 
     // Portfolio JSON
@@ -499,6 +511,16 @@ class CvRepository {
           await MultipartFile.fromFile(
             file.path,
             filename: file.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    } else if (bytes != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          MultipartFile.fromBytes(
+            bytes,
+            filename: fileName ?? 'portfolio_file',
           ),
         ),
       );
@@ -644,9 +666,11 @@ class CvRepository {
 
 
   Future<TrainingResponseDTO> saveTraining(
-      TrainingRequestDTO request,
-      File? file,
-      ) async {
+    TrainingRequestDTO request,
+    File? file, {
+    Uint8List? bytes,
+    String? fileName,
+  }) async {
     final formData = FormData.fromMap({
       'training': MultipartFile.fromString(
         request.toJsonString(),
@@ -655,12 +679,29 @@ class CvRepository {
           'json',
         ),
       ),
-
-      if (file != null)
-        'file': await MultipartFile.fromFile(
-          file.path,
-        ),
     });
+
+    if (file != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    } else if (bytes != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          MultipartFile.fromBytes(
+            bytes,
+            filename: fileName ?? 'certificate',
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.post(
       ApiConstants.trainings,
@@ -670,10 +711,9 @@ class CvRepository {
     return TrainingResponseDTO.fromJson(response.data);
   }
 
-
   Future<TrainingResponseDTO> getTrainingById(
-      int id,
-      ) async {
+    int id,
+  ) async {
     final response = await _dio.get(
       ApiConstants.trainingById(id),
     );
@@ -681,12 +721,13 @@ class CvRepository {
     return TrainingResponseDTO.fromJson(response.data);
   }
 
-
   Future<TrainingResponseDTO> updateTraining(
-      int id,
-      TrainingRequestDTO request,
-      File? file,
-      ) async {
+    int id,
+    TrainingRequestDTO request,
+    File? file, {
+    Uint8List? bytes,
+    String? fileName,
+  }) async {
     final formData = FormData.fromMap({
       'training': MultipartFile.fromString(
         request.toJsonString(),
@@ -695,12 +736,29 @@ class CvRepository {
           'json',
         ),
       ),
-
-      if (file != null)
-        'file': await MultipartFile.fromFile(
-          file.path,
-        ),
     });
+
+    if (file != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split(Platform.pathSeparator).last,
+          ),
+        ),
+      );
+    } else if (bytes != null) {
+      formData.files.add(
+        MapEntry(
+          'file',
+          MultipartFile.fromBytes(
+            bytes,
+            filename: fileName ?? 'certificate',
+          ),
+        ),
+      );
+    }
 
     final response = await _dio.put(
       ApiConstants.trainingById(id),

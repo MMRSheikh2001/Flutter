@@ -230,9 +230,20 @@ class _AddEditPortfolioState extends ConsumerState<AddEditPortfolio> {
 
       final repo = ref.read(cvRepositoryProvider);
       if (widget.isEditing) {
-        await repo.updatePortfolio(widget.portfolioId!, request, _pickedFile);
+        await repo.updatePortfolio(
+          widget.portfolioId!,
+          request,
+          _pickedFile,
+          bytes: _pickedFileBytes,
+          fileName: _pickedFileName,
+        );
       } else {
-        await repo.savePortfolio(request, _pickedFile);
+        await repo.savePortfolio(
+          request,
+          _pickedFile,
+          bytes: _pickedFileBytes,
+          fileName: _pickedFileName,
+        );
       }
 
       if (!mounted) return;

@@ -274,9 +274,20 @@ class _AddEditTrainingState extends ConsumerState<AddEditTraining> {
 
       final repo = ref.read(cvRepositoryProvider);
       if (widget.isEditing) {
-        await repo.updateTraining(widget.trainingId!, request, _pickedFile);
+        await repo.updateTraining(
+          widget.trainingId!,
+          request,
+          _pickedFile,
+          bytes: _pickedFileBytes,
+          fileName: _pickedFileName,
+        );
       } else {
-        await repo.saveTraining(request, _pickedFile);
+        await repo.saveTraining(
+          request,
+          _pickedFile,
+          bytes: _pickedFileBytes,
+          fileName: _pickedFileName,
+        );
       }
 
       if (!mounted) return;
