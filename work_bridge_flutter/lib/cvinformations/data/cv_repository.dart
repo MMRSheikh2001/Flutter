@@ -1146,13 +1146,21 @@ class CvRepository {
 
   Future<ResumeFileResponseDTO> uploadResume(
     int userProfileId,
-    File file,
-  ) async {
+    File? file, {
+    Uint8List? bytes,
+    String? fileName,
+  }) async {
     final formData = FormData.fromMap({
-      'cv': await MultipartFile.fromFile(
-        file.path,
-        filename: file.path.split(Platform.pathSeparator).last,
-      ),
+      if (file != null)
+        'cv': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split(Platform.pathSeparator).last,
+        )
+      else if (bytes != null)
+        'cv': MultipartFile.fromBytes(
+          bytes,
+          filename: fileName ?? 'resume.pdf',
+        ),
     });
 
     final response = await _dio.post(

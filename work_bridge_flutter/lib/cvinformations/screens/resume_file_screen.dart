@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,7 +40,6 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
     });
 
     try {
-      // Get the current profile data to find the profileId
       final profile = await ref.read(myUserProfileProvider.future);
       final profileId = profile?.id;
 
@@ -47,7 +47,8 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
         if (!mounted) return;
         setState(() {
           _loading = false;
-          _loadError = 'Profile not found. Please complete your personal information first.';
+          _loadError =
+              'Profile not found. Please complete your personal information first.';
         });
         return;
       }
@@ -59,7 +60,8 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
       setState(() => _uploadedResume = resume);
     } catch (e) {
       final message = apiErrorMessage(e);
-      final isNotFound = message.toLowerCase().contains('not found') || message.contains('404');
+      final isNotFound =
+          message.toLowerCase().contains('not found') || message.contains('404');
       if (!mounted) return;
       setState(() {
         _uploadedResume = null;
@@ -78,7 +80,8 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
       if (profileId == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile not found. Please save your info first.')),
+          const SnackBar(
+              content: Text('Profile not found. Please save your info first.')),
         );
         return;
       }
@@ -90,23 +93,36 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
 
       if (pickedFile == null) return;
 
-      if (pickedFile.path == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not find file path.')),
-          );
-        }
-        return;
-      }
-
       setState(() => _uploading = true);
 
       final repo = ref.read(cvRepositoryProvider);
-      
-      final uploaded = await repo.uploadResume(
-        profileId,
-        File(pickedFile.path!),
-      );
+      ResumeFileResponseDTO uploaded;
+
+      if (kIsWeb) {
+        final bytes = await pickedFile.readAsBytes();
+        uploaded = await repo.uploadResume(
+          profileId,
+          null,
+          bytes: bytes,
+          fileName: pickedFile.name,
+        );
+      } else {
+        if (pickedFile.path != null) {
+          uploaded = await repo.uploadResume(
+            profileId,
+            File(pickedFile.path!),
+          );
+        } else {
+          // Fallback to bytes if path is null (e.g. cloud file on mobile)
+          final bytes = await pickedFile.readAsBytes();
+          uploaded = await repo.uploadResume(
+            profileId,
+            null,
+            bytes: bytes,
+            fileName: pickedFile.name,
+          );
+        }
+      }
 
       if (!mounted) return;
       setState(() => _uploadedResume = uploaded);
@@ -116,7 +132,8 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not upload resume: ${apiErrorMessage(e)}')),
+        SnackBar(
+            content: Text('Could not upload resume: ${apiErrorMessage(e)}')),
       );
     } finally {
       if (mounted) setState(() => _uploading = false);
@@ -143,13 +160,14 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
 
       if (profileId == null) throw Exception('Profile not found.');
 
+      if (!mounted) return;
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Delete resume?'),
           content: const Text(
             'This removes your uploaded resume file. You can upload a new '
-                'one at any time. This cannot be undone.',
+            'one at any time. This cannot be undone.',
           ),
           actions: [
             TextButton(
@@ -180,7 +198,8 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not delete resume: ${apiErrorMessage(e)}')),
+        SnackBar(
+            content: Text('Could not delete resume: ${apiErrorMessage(e)}')),
       );
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -201,81 +220,78 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (_loadError != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (_loadError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Failed to load resume: $_loadError',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+
+                  const Text(
+                    'Uploaded Resume',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  child: Text(
-                    'Failed to load resume: $_loadError',
-                    style: const TextStyle(color: Colors.red),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Your own resume file (PDF/DOCX).',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  _buildUploadedResumeSection(),
+                  const SizedBox(height: 28),
+
+                  const Text(
+                    'CV Generated from Your Profile',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Automatically built from your education, experience, '
+                    'skills, and other profile sections.',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 10),
+
+                  _GeneratedCvButton(profileId: profileId),
+
+                  const SizedBox(height: 28),
+
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Already have a resume?',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Import an existing resume file and we\'ll pull its '
+                    'details into your profile automatically.',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 10),
+                  FilledButton.tonalIcon(
+                    onPressed: _goToImportResume,
+                    icon: const Icon(Icons.auto_fix_high_outlined),
+                    label: const Text('Import Resume'),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-
-            // ── Uploaded resume file ────────────────
-            const Text(
-              'Uploaded Resume',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 4),
-            const Text(
-              'Your own resume file (PDF/DOC/DOCX).',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-            const SizedBox(height: 10),
-            _buildUploadedResumeSection(),
-            const SizedBox(height: 28),
-
-            // ── Generated CV ─────────────────────────
-            const Text(
-              'CV Generated from Your Profile',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Automatically built from your education, experience, '
-                  'skills, and other profile sections.',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-            const SizedBox(height: 10),
-            
-            _GeneratedCvButton(profileId: profileId),
-
-            const SizedBox(height: 28),
-
-            // ── Import resume ───────────────────────
-            const Divider(),
-            const SizedBox(height: 12),
-            const Text(
-              'Already have a resume?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              'Import an existing resume file and we\'ll pull its '
-                  'details into your profile automatically.',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-            const SizedBox(height: 10),
-            FilledButton.tonalIcon(
-              onPressed: _goToImportResume,
-              icon: const Icon(Icons.auto_fix_high_outlined),
-              label: const Text('Import Resume'),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 
@@ -329,10 +345,10 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
                   onPressed: _uploading ? null : _uploadOrReplaceResume,
                   icon: _uploading
                       ? const SizedBox(
-                    height: 14,
-                    width: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.upload_file, size: 18),
                   label: const Text('Replace'),
                 ),
@@ -341,10 +357,10 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
                   style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                   icon: _deleting
                       ? const SizedBox(
-                    height: 14,
-                    width: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                          height: 14,
+                          width: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Icon(Icons.delete_outline, size: 18),
                   label: const Text('Delete'),
                 ),
@@ -359,12 +375,12 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
       onPressed: _uploading ? null : _uploadOrReplaceResume,
       icon: _uploading
           ? const SizedBox(
-        height: 16,
-        width: 16,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      )
+              height: 16,
+              width: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
           : const Icon(Icons.upload_file),
-      label: Text(_uploading ? 'Uploading...' : 'Upload Resume (PDF/DOC/DOCX)'),
+      label: Text(_uploading ? 'Uploading...' : 'Upload Resume (PDF/DOCX)'),
     );
   }
 
