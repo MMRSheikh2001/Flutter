@@ -76,6 +76,7 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
       final profileId = profile?.id;
 
       if (profileId == null) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile not found. Please save your info first.')),
         );
@@ -84,7 +85,7 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
 
       final pickedFile = await FilePicker.pickFile(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx'],
+        allowedExtensions: ['pdf', 'docx'],
       );
 
       if (pickedFile == null) return;

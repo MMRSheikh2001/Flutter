@@ -1145,20 +1145,20 @@ class CvRepository {
 
 
   Future<ResumeFileResponseDTO> uploadResume(
-      int userProfileId,
-      File file,
-      ) async {
+    int userProfileId,
+    File file,
+  ) async {
     final formData = FormData.fromMap({
-      'userProfileId': userProfileId,
       'cv': await MultipartFile.fromFile(
         file.path,
-        filename: file.path.split('/').last,
+        filename: file.path.split(Platform.pathSeparator).last,
       ),
     });
 
     final response = await _dio.post(
       ApiConstants.uploadedResume,
       data: formData,
+      queryParameters: {'userProfileId': userProfileId},
     );
 
     return ResumeFileResponseDTO.fromJson(response.data);
