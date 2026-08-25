@@ -864,57 +864,43 @@ class _GeneratedCvButton extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.picture_as_pdf),
-            label: const Text('View Generated CV'),
-            onPressed: () async {
-              // Constructing the absolute URL for the PDF.
-              // Note: This opens in the browser. If the backend endpoint
-              // requires authentication, the browser will likely fail with 
-              // "User not found" or "Unauthorized".
-              final url = Uri.parse(
-                '${ApiConstants.baseUrl}${ApiConstants.resumePdf(profileId!)}',
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.picture_as_pdf),
+        label: const Text('View Generated CV'),
+        onPressed: () async {
+          final url = Uri.parse(
+            '${ApiConstants.baseUrl}${ApiConstants.resumePdf(profileId!)}',
+          );
+
+          try {
+            if (await canLaunchUrl(url)) {
+              await launchUrl(
+                url,
+                mode: LaunchMode.externalApplication,
               );
+            } else {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Could not open the CV PDF.'),
+                ),
+              );
+            }
+          } catch (e) {
+            if (!context.mounted) return;
 
-              try {
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(
-                    url,
-                    mode: LaunchMode.externalApplication,
-                  );
-                } else {
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Could not open the CV PDF.'),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Error opening CV.',
-                    ),
-                  ),
-                );
-              }
-            },
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Note: PDF viewing requires internet and may prompt for login if secured.',
-          style: TextStyle(fontSize: 11, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Error opening CV.',
+                ),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 }
