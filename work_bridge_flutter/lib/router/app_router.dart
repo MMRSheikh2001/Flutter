@@ -236,7 +236,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ResumeFileScreen());
       case resumeFileImport:
         return MaterialPageRoute(
-          builder: (_) => const ResumeFileImportScreen(),
+          builder: (_) => const ResumeImportPreviewScreen(),
         );
 
       case trainings:
