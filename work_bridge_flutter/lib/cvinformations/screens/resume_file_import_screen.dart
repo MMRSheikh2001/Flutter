@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:work_bridge_flutter/auth/auth_provider.dart';
 import 'package:work_bridge_flutter/cvinformations/models/response/resume_import_preview.dart';
 import 'package:work_bridge_flutter/utils/api_client.dart';
 import 'package:work_bridge_flutter/utils/providers.dart';
@@ -9,39 +8,27 @@ import 'package:work_bridge_flutter/utils/providers.dart';
 /// uploaded resume (backend: ResumeImportController.getJSONFromResume,
 /// which runs Gemini over the resume text) and lets the user choose to
 /// commit it to their profile or discard it.
-///
-/// Skills and Languages are intentionally left out of this review, even
-/// though the backend's preview DTO includes them — saveImportedResume()
-/// never persists those two sections (they're dropdown/master-data
-/// driven, and AI-extracted text can't reliably resolve to a real
-/// skillId/languageId), so showing them here would suggest they'll be
-/// saved when they won't be.
-///
-/// Can be used two ways:
-/// - Pass [initialPreview] (e.g. if a caller already fetched it) to skip
-///   straight to the review UI.
-/// - Leave it null and this screen fetches it itself on init — this is
-///   what happens when reached directly from ResumeFileScreen's
-///   "Import Resume" button, since the backend re-parses whatever
-///   resume file is already uploaded for this profile.
-class ResumeImportPreviewScreen extends ConsumerStatefulWidget {
-  const ResumeImportPreviewScreen({super.key, this.initialPreview});
+class ResumeFileImportScreen extends ConsumerStatefulWidget {
+  const ResumeFileImportScreen({
+    super.key,
+    required this.userProfileId,
+    this.initialPreview,
+  });
 
+  final int userProfileId;
   final ResumeImportPreviewDTO? initialPreview;
 
   @override
-  ConsumerState<ResumeImportPreviewScreen> createState() =>
-      _ResumeImportPreviewScreenState();
+  ConsumerState<ResumeFileImportScreen> createState() =>
+      _ResumeFileImportScreenState();
 }
 
-class _ResumeImportPreviewScreenState
-    extends ConsumerState<ResumeImportPreviewScreen> {
+class _ResumeFileImportScreenState
+    extends ConsumerState<ResumeFileImportScreen> {
   ResumeImportPreviewDTO? _preview;
   bool _loading = true;
   String? _loadError;
   bool _saving = false;
-
-  int? get _profileId => ref.read(currentUserProvider)?.profileId;
 
   @override
   void initState() {
@@ -55,9 +42,6 @@ class _ResumeImportPreviewScreenState
   }
 
   Future<void> _load() async {
-    final profileId = _profileId;
-    if (profileId == null) return;
-
     setState(() {
       _loading = true;
       _loadError = null;
@@ -66,7 +50,7 @@ class _ResumeImportPreviewScreenState
     try {
       final preview = await ref
           .read(cvRepositoryProvider)
-          .getResumeImportPreview(profileId);
+          .getResumeImportPreview(widget.userProfileId);
       if (!mounted) return;
       setState(() => _preview = preview);
     } catch (e) {
@@ -78,9 +62,8 @@ class _ResumeImportPreviewScreenState
   }
 
   Future<void> _confirmAndSave() async {
-    final profileId = _profileId;
     final preview = _preview;
-    if (profileId == null || preview == null) return;
+    if (preview == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -88,8 +71,8 @@ class _ResumeImportPreviewScreenState
         title: const Text('Save to your profile?'),
         content: const Text(
           'This adds the extracted education, experience, and other '
-              'sections above to your profile. You can review or edit any of '
-              'it afterward from your Profile Center.',
+          'sections above to your profile. You can review or edit any of '
+          'it afterward from your Profile Center.',
         ),
         actions: [
           TextButton(
@@ -109,7 +92,7 @@ class _ResumeImportPreviewScreenState
     try {
       await ref
           .read(cvRepositoryProvider)
-          .saveImportedResume(profileId, preview);
+          .saveImportedResume(widget.userProfileId, preview);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Resume imported into your profile.')),
@@ -136,10 +119,10 @@ class _ResumeImportPreviewScreenState
       body: _loading
           ? const _LoadingState()
           : _loadError != null
-          ? _ErrorState(message: _loadError!, onRetry: _load)
-          : _preview == null
-          ? const Center(child: Text('Nothing to review.'))
-          : _buildPreview(_preview!),
+              ? _ErrorState(message: _loadError!, onRetry: _load)
+              : _preview == null
+                  ? const Center(child: Text('Nothing to review.'))
+                  : _buildPreview(_preview!),
     );
   }
 
@@ -163,8 +146,8 @@ class _ResumeImportPreviewScreenState
                     Expanded(
                       child: Text(
                         'Here\'s what our AI found in your resume. Review it '
-                            'below, then choose to save it to your profile or '
-                            'discard it.',
+                        'below, then choose to save it to your profile or '
+                        'discard it.',
                         style: TextStyle(fontSize: 13),
                       ),
                     ),
@@ -179,19 +162,19 @@ class _ResumeImportPreviewScreenState
                 const SizedBox(height: 20),
               ],
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'Education',
                 items: preview.educations,
                 itemBuilder: (e) => _SimpleEntryCard(
                   title: e.institution ?? 'Untitled',
                   subtitle: [
                     e.fieldOfStudy,
-                    e.educationLevel?.name,
+                    _formatEnum(e.educationLevel),
                   ].whereType<String>().where((s) => s.isNotEmpty).join(' • '),
                 ),
               ),
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'Experience',
                 items: preview.experiences,
                 itemBuilder: (e) => _SimpleEntryCard(
@@ -200,7 +183,7 @@ class _ResumeImportPreviewScreenState
                 ),
               ),
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'Training',
                 items: preview.trainings,
                 itemBuilder: (t) => _SimpleEntryCard(
@@ -209,7 +192,7 @@ class _ResumeImportPreviewScreenState
                 ),
               ),
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'Portfolio',
                 items: preview.portfolios,
                 itemBuilder: (p) => _SimpleEntryCard(
@@ -218,7 +201,7 @@ class _ResumeImportPreviewScreenState
                 ),
               ),
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'References',
                 items: preview.references,
                 itemBuilder: (r) => _SimpleEntryCard(
@@ -230,7 +213,7 @@ class _ResumeImportPreviewScreenState
                 ),
               ),
 
-              _ListSection<dynamic>(
+              _ListSection(
                 title: 'Extracurricular',
                 items: preview.extracurriculars,
                 itemBuilder: (e) => _SimpleEntryCard(
@@ -284,13 +267,13 @@ class _ResumeImportPreviewScreenState
                   ),
                   child: _saving
                       ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
                       : const Text('Save to Profile'),
                 ),
               ),
@@ -299,6 +282,18 @@ class _ResumeImportPreviewScreenState
         ),
       ],
     );
+  }
+
+  /// Safely formats enum values for display to avoid 'method not found'
+  /// crashes if the AI returns unexpected data or the DTO mapping has issues.
+  String? _formatEnum(dynamic value) {
+    if (value == null) return null;
+    try {
+      // Handles both real enums (using .name) and strings
+      return value.toString().split('.').last.toUpperCase();
+    } catch (_) {
+      return value.toString();
+    }
   }
 }
 
@@ -373,10 +368,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Generic read-only list section — renders nothing if [items] is null
-/// or empty, so sections the AI didn't find anything for simply don't
-/// appear rather than showing an empty header.
-class _ListSection<T> extends StatelessWidget {
+class _ListSection extends StatelessWidget {
   const _ListSection({
     required this.title,
     required this.items,
@@ -440,7 +432,7 @@ class _SimpleEntryCard extends StatelessWidget {
 class _ProfileSummaryCard extends StatelessWidget {
   const _ProfileSummaryCard({required this.profile});
 
-  final dynamic profile; // UserProfileResponseDTO
+  final dynamic profile;
 
   @override
   Widget build(BuildContext context) {
@@ -450,7 +442,7 @@ class _ProfileSummaryCard extends StatelessWidget {
       'Phone': profile.phone,
       'Nationality': profile.nationality,
       'Summary': profile.professionalSummary,
-    }..removeWhere((_, v) => v == null || v.trim().isEmpty);
+    }..removeWhere((_, v) => v == null || v.toString().trim().isEmpty);
 
     if (fields.isEmpty) {
       return const _SimpleEntryCard(
@@ -467,21 +459,21 @@ class _ProfileSummaryCard extends StatelessWidget {
           children: fields.entries
               .map(
                 (e) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    TextSpan(
-                      text: '${e.key}: ',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: RichText(
+                    text: TextSpan(
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        TextSpan(
+                          text: '${e.key}: ',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(text: e.value.toString()),
+                      ],
                     ),
-                    TextSpan(text: e.value),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          )
+              )
               .toList(),
         ),
       ),

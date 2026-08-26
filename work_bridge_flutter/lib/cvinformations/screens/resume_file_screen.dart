@@ -207,7 +207,17 @@ class _ResumeFileScreenState extends ConsumerState<ResumeFileScreen> {
   }
 
   void _goToImportResume() {
-    Navigator.of(context).pushNamed(AppRouter.resumeFileImport);
+    final profileId = ref.read(myUserProfileProvider).value?.id;
+    if (profileId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please save your personal info first.')),
+      );
+      return;
+    }
+    Navigator.of(context).pushNamed(
+      AppRouter.resumeFileImport,
+      arguments: profileId,
+    );
   }
 
   @override
