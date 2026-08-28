@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:homeflutterproject/models/job_response.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
@@ -12,7 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<dynamic> jobs = [];
+  List<JobResponse> jobs = [];
 
   Future fetchData() async {
     final url = Uri.parse("http://localhost:8090/api/jobs/");
@@ -25,8 +26,22 @@ class _HomePageState extends State<HomePage> {
     } else {
       print("Failure");
     }
-    jobs = jsonDecode(response.body);
-    print(jobs.toString());
+    final jsonData = jsonDecode(response.body);
+    // for (var data in jsonData) {
+    //   print(data["title"]);
+    //   jobs.add(
+    //     JobResponse(
+    //       id: data["id"],
+    //       title: data["title"],
+    //       companyLogo: data["companyLogo"],
+    //       jobDescription: data["jobDescription"],
+    //     ),
+    //   );
+    // }
+
+  //  jobs=jsonData.map(JobResponse.fromJson(JobResponse));
+
+    print(jobs);
 
     print(jobs.length);
 
@@ -49,17 +64,20 @@ class _HomePageState extends State<HomePage> {
 
       body: ListView.builder(
         itemCount: jobs.length,
-          itemBuilder: (_,index){
-          final _job=jobs[index];
-            return Card(
-              child:  ListTile(
-                leading: Image.network("http://localhost:8090/api/files/companyprofiles/"+_job["companyLogo"]),
-                title: Text(jobs[index]["title"]),
-                subtitle: Text(_job["jobDescription"]),
+        itemBuilder: (_, index) {
+          final _job = jobs[index];
+          return Card(
+            child: ListTile(
+              leading: Image.network(
+                "http://localhost:8090/api/files/companyprofiles/" +
+                    _job.companyLogo!,
               ),
-            );
-          }
-      )
+              title: Text(jobs[index].title!),
+              subtitle: Text(_job.jobDescription!),
+            ),
+          );
+        },
+      ),
     );
   }
 }
