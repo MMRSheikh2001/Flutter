@@ -24,9 +24,16 @@ class ApiConstants {
     }
   }
 
-  static String get baseUrl => 'http://$host:8090/api/';
+  // static String get baseUrl => 'http://$host:8090/api/';
 
-  static String get fileUrl => 'http://$host:8090/api/files/';
+  // static String get fileUrl => 'http://$host:8090/api/files/';
+
+  //Cloud flare tunnel
+  static String get baseUrl =>
+      'https://talks-doctor-kansas-spring.trycloudflare.com/api/';
+
+  static String get fileUrl =>
+      'https://talks-doctor-kansas-spring.trycloudflare.com/api/files/';
 
   //Files
 
