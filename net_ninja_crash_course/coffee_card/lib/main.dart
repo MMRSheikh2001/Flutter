@@ -1,4 +1,6 @@
+import 'package:coffee_card/column_prac.dart';
 import 'package:coffee_card/home.dart';
+import 'package:coffee_card/row_prac.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,21 +13,23 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: const Home());
+    return MaterialApp(debugShowCheckedModeBanner: false,
+        home: RowPrac());
   }
 }
 
-class Home extends StatelessWidget {
-  const Home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Hello World"),
-        backgroundColor: Colors.blue[100],
-        centerTitle: true,
-      ),
-    );
-  }
-}
+//
+// class Home extends StatelessWidget {
+//   const Home({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Hello World"),
+//         backgroundColor: Colors.blue[100],
+//         centerTitle: true,
+//       ),
+//     );
+//   }
+// }
