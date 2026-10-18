@@ -1,5 +1,6 @@
 import 'package:coffee_card/column_prac.dart';
 import 'package:coffee_card/home.dart';
+import 'package:coffee_card/image_prac.dart';
 import 'package:coffee_card/row_prac.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(debugShowCheckedModeBanner: false,
-        home: RowPrac());
+        home: ImagePrac());
   }
 }
 
