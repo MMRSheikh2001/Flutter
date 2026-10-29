@@ -19,7 +19,12 @@ class ImagePrac extends StatelessWidget {
           SizedBox(height: 20),
           Image.asset("assets/Screenshot_17.png", width: 75),
           SizedBox(height: 20),
-          Image.asset("assets/Screenshot_18.png", width: 100),
+          Expanded(child: Image.asset("assets/Screenshot_18.png", width: 100,
+            fit: BoxFit.fitWidth,
+            alignment: Alignment.bottomCenter,
+          ),
+
+          )
         ],
       ),
     );
