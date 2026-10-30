@@ -1,3 +1,4 @@
+import 'package:coffee_card/custom_widget_prac.dart';
 import 'package:flutter/material.dart';
 
 class ControlFlowPrac extends StatefulWidget {
@@ -18,7 +19,7 @@ class _ControlFlowPracState extends State<ControlFlowPrac> {
 body: ListView(
   children: [
     for(int i=0;i<10;i++)
-      Text("Hello "+i.toString())  
+      StyleBodyText("Hello "+i.toString())
     
   ],
 ),

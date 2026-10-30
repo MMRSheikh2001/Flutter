@@ -1,3 +1,4 @@
+import 'package:coffee_card/custom_widget_prac.dart';
 import 'package:flutter/material.dart';
 
 class ButtonPrac extends StatefulWidget {
@@ -21,9 +22,9 @@ class _ButtonPracState extends State<ButtonPrac> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          Text(
+          StyleBodyText(
             "Count : $_count",
-            style: const TextStyle(fontSize: 20),
+
           ),
 
           const SizedBox(height: 50),
@@ -33,7 +34,7 @@ class _ButtonPracState extends State<ButtonPrac> {
                 _count++;
               });
             },
-            child: const Text("+"),
+            child: const StyleBodyText("+"),
           ),
           const SizedBox(height: 20),
           TextButton(style: TextButton.styleFrom(
@@ -48,7 +49,7 @@ class _ButtonPracState extends State<ButtonPrac> {
                 }
               });
             },
-            child: const Text("-"),
+            child: const StyleBodyText("-"),
           ),
         ],
       ),
