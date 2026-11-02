@@ -10,7 +10,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context,WidgetRef ref) {
     final allProducts=ref.watch(productsProvider);
-    final cartProducts=ref.watch(cartNotifierProvider);
+    final cartProducts=ref.watch(cartProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Garage Sale Products'),
@@ -24,11 +24,11 @@ class HomeScreen extends ConsumerWidget {
             crossAxisCount: 2,
             mainAxisSpacing: 20,
             crossAxisSpacing: 20,
-            childAspectRatio: 0.9,
+            childAspectRatio: 0.7,
           ),
           itemBuilder:(context, index) {
             return Container(
-              padding: const EdgeInsets.all(100),
+              padding: const EdgeInsets.all(10),
               color: Colors.blueGrey.withValues(alpha: 0.05),
               child: Column(
                 children: [
@@ -37,13 +37,19 @@ class HomeScreen extends ConsumerWidget {
                   Text('\$ ${allProducts[index].price}'),
                   if (cartProducts.contains(allProducts[index]))
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        ref.read(cartProvider.notifier)
+                            .removeProduct(allProducts[index]);
+                      },
                       child: const Text('Remove'),
                     ),
 
                   if (!cartProducts.contains(allProducts[index]))
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        ref.read(cartProvider.notifier)
+                            .addProduct(allProducts[index]);
+                      },
                       child: const Text('Add to Cart'),
                     ),
                 ],
